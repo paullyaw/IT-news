@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+    <title>Регистрация</title>
+<body>
+    <h1>Регистрация</h1>
+    {% if error %}
+    <p style="color: red">{{ error }}</p>
+    {% endif %}
+    <form method="POST" action="{{ url_for('register') }}">
+        <p>
+            <label for="username">Имя пользователя:</label>
+            <input type="text" name="username" required>
+        </p>
+        <p>
+            <label for="email ">Почта:</label>
+            <input type="text" name="email" required>
+        </p>
+        <p>
+            <label for="password">Пароль:</label>
+            <input type="password" name="password" required>
+        </p>
+        <p>
+            <input type="submit" value="Войти">
+        </p>
+    </form>
+</body>
+{% endblock %}
