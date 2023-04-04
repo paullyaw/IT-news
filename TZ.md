@@ -1,7 +1,7 @@
 # Техническое задание
 IT-журнал
 # Сведения о команде
-- Арсений Якубовский - [hunter3470](https://github.com/hunter3470)
+- Арсений Якубовский - [eogod](https://github.com/eogod)
 - Полина Митрохова - [paullyaw](https://github.com/paullyaw)
 - Александр Смирнов - [lilApril](https://github.com/lilApril)
 # Концептуальная модель
