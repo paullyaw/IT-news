@@ -1,0 +1,19 @@
+@font-face {
+    font-family: "MullerExtraBold";
+    src: url("../fonts/MullerExtraBold/MullerExtraBold.eot");
+    src: url("../fonts/MullerExtraBold/MullerExtraBold.eot?#iefix")format("embedded-opentype"),
+    url("../fonts/MullerExtraBold/MullerExtraBold.woff") format("woff"),
+    url("../fonts/MullerExtraBold/MullerExtraBold.ttf") format("truetype");
+    font-style: normal;
+    font-weight: 800;
+}
+
+@font-face {
+    font-family: "MullerMedium";
+    src: url("../fonts/MullerMedium/MullerMedium.eot");
+    src: url("../fonts/MullerMedium/MullerMedium.eot?#iefix")format("embedded-opentype"),
+    url("../fonts/MullerMedium/MullerMedium.woff") format("woff"),
+    url("../fonts/MullerMedium/MullerMedium.ttf") format("truetype");
+    font-style: normal;
+    font-weight: 500;
+}

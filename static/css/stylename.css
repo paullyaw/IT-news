@@ -1,0 +1,22 @@
+a::first-letter {
+  text-transform: uppercase;
+}
+.navbar {
+  width: 75%;
+  margin: 0 auto;
+}
+.navbar-brand {
+			font-family: MullerMedium, sans-serif;
+			font-size: 20px;
+			letter-spacing: 1px;
+		}
+.special {
+			font-family: MullerExtraBold, sans-serif;;
+			font-size: 40px;
+			letter-spacing: 2px;
+		}
+.form-floating {
+			font-family: MullerMedium, sans-serif;
+			font-size: 18px;
+			letter-spacing: 1px;
+		}
