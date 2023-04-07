@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Новости</title>
+    <link href="/static/css/fonts.css" rel="stylesheet">
+    <link href="/static/css/stylename.css" rel="stylesheet">
+   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+          crossorigin="anonymous">
+</head>
+<body>
+<header>
+    <nav class="navbar navbar-light">
+       <a class="navbar-brand" href="/">
+			<span class="special">IT-ЖУРНАЛ</span>
+		</a>
+    <nav class="ms-auto">
+        <a class="navbar-brand" href="/account"></a>
+        <a class="navbar-brand" href="/logout">Выход</a>
+      </nav>
+    </nav>
+
+</header>
+<!-- Begin page content -->
+<main role="main" class="container">
+    {% block content %}
+	<body>
+	<style>
+		h1	{
+			font-family: MullerMedium, sans-serif;
+			font-size: 55px;
+			letter-spacing: 1px;
+		}
+		label {
+		    font-family: MullerMedium, sans-serif;
+			font-size: 22px;
+			letter-spacing: 1px;
+		}
+	</style>
+	<h1>Аккаунт</h1>
+	<form method="POST" action="{{ url_for('account') }}">
+		{{ form.hidden_tag() }}
+		<p>
+			<label for="username">Имя пользователя:</label>
+			{{ form.username }}
+		</p>
+		<p>
+			<label for="email">Email:</label>
+			{{ form.email }}
+		</p>
+		<p>
+			<label for="password">Пароль:</label>
+			{{ form.password }}
+		</p>
+		<p>
+			<input type="submit" value="Изменить">
+		</p>
+	</form>
+</body>
+
+	{% endblock %}
+</main>
+</body>
+
