@@ -1,5 +1,6 @@
+from datetime import datetime
 from flask import Flask, render_template, request, redirect, session, flash
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_login import LoginManager, UserMixin, login_user, login_required, current_user, logout_user
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf import FlaskForm
@@ -14,7 +15,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 
-class User(UserMixin, db.Model):
+class User(UserMixin, db.Model):  # информация для базы данных пользователей
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -22,7 +23,15 @@ class User(UserMixin, db.Model):
     role = db.Column(db.String(20), nullable=False)
 
 
-class AccountForm(FlaskForm):
+class News(db.Model):  # информация для базы данных новостей
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    category = db.Column(db.String(20), nullable=False)
+    date = db.Column(db.DateTime, nullable=False, default=datetime.today())
+
+
+class AccountForm(FlaskForm):  # форма для настроек аккаунта
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password',
@@ -31,35 +40,27 @@ class AccountForm(FlaskForm):
     submit = SubmitField('Save Changes')
 
 
-with app.app_context():
+with app.app_context():  # создание базы банных
     db.create_all()
 
 
 @login_manager.user_loader
-def load_user(user_id):
+def load_user(user_id):  # создание сессии при авторизации пользователя
     return User.query.get(int(user_id))
 
 
 @app.route('/')
-def index():
-    if 'user_id' in session:
-        user = User.query.filter_by(id=session["user_id"]).first()
-        return render_template('home.html', user=user)
-    else:
-        return render_template('base.html')
+def index():  # главная страница
+    return render_template('base.html')
 
 
 @app.route('/home')
-def home():
-    if current_user.is_authenticated:
-        user = User.query.filter_by(id=current_user.id).first()
-        return render_template('home.html', user=user)
-    else:
-        return redirect('/')
+def home():  # домашняя страница пользователя
+    return render_template('base.html')
 
 
 @app.route('/register', methods=['GET', 'POST'])
-def register():
+def register():  # регистрация пользователя
     if request.method == 'POST':
         username = request.form['username']
         email = request.form['email']
@@ -73,7 +74,7 @@ def register():
 
 
 @app.route('/login', methods=['GET', 'POST'])
-def login():
+def login():  # авторизация пользователя
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -88,27 +89,47 @@ def login():
 
 
 @app.route('/logout')
-def logout():
+def logout():  # выход из аккаунта и конец сессии
+    logout_user()
     session.pop('user_id', None)
     return redirect("/")
 
 
 @app.route('/account', methods=['GET', 'POST'])
 @login_required
-def account():
+def account():  # настройки аккаунта
     form = AccountForm()
-    if request.method == 'POST':
+    if request.method == 'POST':  # изменение данных пользователя
         user = User.query.filter_by(id=current_user.id).first()
         user.username = form.username.data
         user.email = form.email.data
         db.session.commit()
         flash('Your account has been updated!', 'success')
         return redirect('/account')
-    elif request.method == 'GET':
+    elif request.method == 'GET':  # получение данных о пользователе
         user = User.query.filter_by(id=current_user.id).first()
         form.username.data = user.username
         form.email.data = user.email
-    return render_template('account.html', form=form)
+    user = User.query.filter_by(id=current_user.id).first()
+    if user.role == "reader":
+        return render_template('account.html', form=form)
+    elif user.role == "admin":
+        return render_template('admin.html', form=form)
+
+
+@app.route('/neural')
+def neural():
+    return render_template('neural.html')
+
+
+@app.route("/technique")
+def technique():
+    return render_template('technique.html')
+
+
+@app.route("/games")
+def games():
+    return render_template('games.html')
 
 
 if __name__ == '__main__':

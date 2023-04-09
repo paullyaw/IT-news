@@ -1,17 +1,15 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta charset="UTF-8">
+    <title>Новости</title>
+    <link href="/static/css/fonts.css" rel="stylesheet">
+    <link href="/static/css/stylename.css" rel="stylesheet">
+   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet"
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
           crossorigin="anonymous">
-     <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/product/">
-    <link href="/static/css/fonts.css" rel="stylesheet">
-    <link href="/static/css/stylename.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Muller:wght@400;700&display=swap" rel="stylesheet">
-    <title>{{title}}</title>
 </head>
 <body>
 <header>
@@ -20,7 +18,7 @@
        <a class="navbar-brand" href="/">
 			<span class="special">IT-ЖУРНАЛ</span>
 		</a>
-      <a class="navbar-brand text-primary" href="/neural">Нейросети</a>
+         <a class="navbar-brand text-primary" href="/neural">Нейросети</a>
      <a class="navbar-brand text-info" href="/technique">Техника</a>
         <a class="navbar-brand text-secondary" href="/games">Игры</a>
     <nav class="ms-auto">
@@ -56,22 +54,21 @@
     </style>
     <link href="/static/css/product.css" rel="stylesheet">
     <main>
-   {% if current_user.is_authenticated %}
-        <div class="position-relative overflow-hidden text-center">
+  <div class="position-relative overflow-hidden text-center mx-auto">
     <div class="col-md-5 p-lg-5 mx-auto my-5">
       <style>
-          h1{
-          font-family: MullerExtraBold, sans-serif;;
-			font-size: 40px;
+          .display-4{
+          font-family: MullerExtraBold, sans-serif;
+		  font-size: 95px;
 			letter-spacing: 1px;
-		  p {
+			}
+		  .lead {
 		  font-family: MullerMedium, sans-serif;
-			font-size: 18px;
+			font-size: 25px;
 		  }
-          }
       </style>
-      <h1 class="display-4 fw-normal"></h1>
-      <p class="lead fw-normal"></p>
+      <h1 class="display-4 fw-normal text-primary d-flex align-items-center justify-content-center"></h1>
+      <p class="lead fw-normal text-primary"></p>
     </div>
 </div>
 
@@ -79,8 +76,8 @@
     const headline = document.querySelector(".display-4");
     const subline = document.querySelector(".lead");
 
-    const headlineText = "Привет!";
-    const sublineText = "Подборка новостей специально для тебя готова.";
+    const headlineText = "Нейросети";
+    const sublineText = "Технологии будущего в IT-индустрии.";
 
     let headlineIndex = 0;
     let sublineIndex = 0;
@@ -97,14 +94,30 @@
         if (sublineIndex < sublineText.length) {
             subline.textContent += sublineText.charAt(sublineIndex);
             sublineIndex++;
-            setTimeout(typeSubline, 40);
+            setTimeout(typeSubline, 30);
         }
     }
 
     typeHeadline();
-    setTimeout(typeSubline, 1500);
+    setTimeout(typeSubline, 1300);
 </script>
-{% endif %}
+  <div class="d-md-flex flex-md-equal w-100 my-md-3 ps-md-3">
+    <div class="bg-dark me-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center text-white overflow-hidden">
+      <div class="my-3 py-3">
+        <h2 class="display-5">Another headline</h2>
+        <p class="lead">And an even wittier subheading.</p>
+      </div>
+      <div class="bg-light shadow-sm mx-auto" style="width: 80%; height: 300px; border-radius: 21px 21px 0 0;"></div>
+    </div>
+    <div class="bg-light me-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden">
+      <div class="my-3 p-3">
+        <h2 class="display-5">Another headline</h2>
+        <p class="lead">And an even wittier subheading.</p>
+      </div>
+      <div class="bg-dark shadow-sm mx-auto" style="width: 80%; height: 300px; border-radius: 21px 21px 0 0;"></div>
+    </div>
+  </div>
+
   <div class="d-md-flex flex-md-equal w-100 my-md-3 ps-md-3">
     <div class="bg-light me-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden">
       <div class="my-3 p-3">
@@ -156,7 +169,6 @@
     </div>
   </div>
 </main>
-
     {% endblock %}
 </main>
 </body>
