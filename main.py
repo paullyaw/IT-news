@@ -121,6 +121,7 @@ def account():  # настройки аккаунта
 
 
 # Главная страница панели администрирования
+@login_required
 @app.route("/dashboard")
 def dashboard():
     news = News.query.all()
@@ -128,6 +129,7 @@ def dashboard():
 
 
 # Страница редактирования новостей
+@login_required
 @app.route("/edit_news/<int:id>", methods=["GET", "POST"])
 def edit_news(id):
     news = News.query.get_or_404(id)
@@ -146,6 +148,7 @@ def edit_news(id):
         return render_template("edit_news.html", news=news)
 
 # Страница удаления новостей
+@login_required
 @app.route("/delete_news/<int:id>")
 def delete_news(id):
     news = News.query.get_or_404(id)
