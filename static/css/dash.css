@@ -1,0 +1,19 @@
+body {
+  padding-top: 60px;
+}
+
+.jumbotron {
+  text-align: center;
+}
+
+.btn-default {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  color: #333;
+}
+
+.btn-default:hover {
+  background-color: #ccc;
+  border-color: #ccc;
+  color: #fff;
+}
