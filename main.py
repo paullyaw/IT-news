@@ -1,11 +1,12 @@
 from datetime import datetime
-from flask import Flask, render_template, request, redirect, session, flash
+from flask import Flask, render_template, request, redirect, session, flash, send_file, url_for
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user, logout_user
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired, Email, EqualTo, Length
+import os
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
@@ -26,7 +27,9 @@ class User(UserMixin, db.Model):  # информация для базы дан�
 class News(db.Model):  # информация для базы данных новостей
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
+    subtitle = db.Column(db.String(100), nullable=False)
     content = db.Column(db.Text, nullable=False)
+    photo = db.Column(db.String, nullable=False)
     category = db.Column(db.String(20), nullable=False)
     date = db.Column(db.DateTime, nullable=False, default=datetime.today())
 
@@ -117,19 +120,88 @@ def account():  # настройки аккаунта
         return render_template('admin.html', form=form)
 
 
+# Главная страница панели администрирования
+@app.route("/dashboard")
+def dashboard():
+    news = News.query.all()
+    return render_template("dashboard.html", news=news)
+
+
+# Страница добавления новостей
+@app.route("/add_news", methods=["GET", "POST"])
+def add_product():
+    if request.method == "POST":
+        name = request.form["name"]
+        title = request.form["title"]
+        description = request.form["description"]
+        news = News(name=name, title=title, description=description)
+        db.session.add(news)
+        db.session.commit()
+        return redirect(url_for("dashboard"))
+    else:
+        return render_template("add_news.html")
+
+
+# Страница редактирования новостей
+@app.route("/edit_news/<int:id>", methods=["GET", "POST"])
+def edit_product(id):
+    news = News.query.get_or_404(id)
+    if request.method == "POST":
+        news.name = request.form["name"]
+        news.title = request.form["title"]
+        news.description = request.form["description"]
+        db.session.commit()
+        return redirect(url_for("dashboard"))
+    else:
+        return render_template("edit_news.html", news=news)
+
+# Страница удаления новостей
+@app.route("/delete_news/<int:id>")
+def delete_product(id):
+    news = News.query.get_or_404(id)
+    db.session.delete(news)
+    db.session.commit()
+    return redirect(url_for("dashboard"))
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
+
+
 @app.route('/neural')
 def neural():
     return render_template('neural.html')
 
 
-@app.route("/technique")
+@app.route('/technique')
 def technique():
-    return render_template('technique.html')
+    news_list = News.query.filter_by(category="technique").all()
+    return render_template('technique.html', all_news=news_list)
 
 
-@app.route("/games")
+@app.route('/games')
 def games():
     return render_template('games.html')
+
+
+@app.route('/add_news', methods=['GET', 'POST'])
+@login_required
+def add_news():
+    if request.method == 'POST':
+        title = request.form['title']
+        subtitle = request.form['subtitle']
+        content = request.form['content']
+        photo = request.files["photo"]
+        category = request.form['category']
+        filename = photo.filename
+        photo.save(os.path.join('static', 'img', filename))
+        photo_data = photo.read()
+
+        news = News(title=title, subtitle=subtitle, content=content, photo=filename, category=category)
+        db.session.add(news)
+        db.session.commit()
+        return redirect('/home')
+    return render_template('add_news.html')
 
 
 if __name__ == '__main__':

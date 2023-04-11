@@ -17,8 +17,11 @@
        <a class="navbar-brand" href="/">
 			<span class="special">IT-ЖУРНАЛ</span>
 		</a>
+		{% if current_user.role == "admin" %}
+        <a class="navbar-brand" href="/add_news">Добавить новость</a>
+        {% endif %}
     <nav class="ms-auto">
-        <a class="navbar-brand" href="/account"></a>
+		<a class="navbar-brand" href="/account">{{ current_user.username }}</a>
         <a class="navbar-brand" href="/logout">Выход</a>
       </nav>
     </nav>
