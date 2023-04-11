@@ -127,29 +127,19 @@ def dashboard():
     return render_template("dashboard.html", news=news)
 
 
-# Страница добавления новостей
-@app.route("/add_news", methods=["GET", "POST"])
-def add_product():
-    if request.method == "POST":
-        name = request.form["name"]
-        title = request.form["title"]
-        description = request.form["description"]
-        news = News(name=name, title=title, description=description)
-        db.session.add(news)
-        db.session.commit()
-        return redirect(url_for("dashboard"))
-    else:
-        return render_template("add_news.html")
-
-
 # Страница редактирования новостей
 @app.route("/edit_news/<int:id>", methods=["GET", "POST"])
-def edit_product(id):
+def edit_news(id):
     news = News.query.get_or_404(id)
     if request.method == "POST":
-        news.name = request.form["name"]
-        news.title = request.form["title"]
-        news.description = request.form["description"]
+        news.title = request.form['title']
+        news.subtitle = request.form['subtitle']
+        news.content = request.form['content']
+        photo = request.files["photo"]
+        news.category = request.form['category']
+        news.photo = photo.filename
+        photo.save(os.path.join('static', 'img', photo.filename))
+        photo_data = photo.read()
         db.session.commit()
         return redirect(url_for("dashboard"))
     else:
@@ -157,15 +147,11 @@ def edit_product(id):
 
 # Страница удаления новостей
 @app.route("/delete_news/<int:id>")
-def delete_product(id):
+def delete_news(id):
     news = News.query.get_or_404(id)
     db.session.delete(news)
     db.session.commit()
     return redirect(url_for("dashboard"))
-
-
-if __name__ == "__main__":
-    app.run(debug=True)
 
 
 @app.route('/neural')
