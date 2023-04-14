@@ -43,6 +43,7 @@ class AccountForm(FlaskForm):  # форма для настроек аккаун
     submit = SubmitField('Save Changes')
 
 
+
 with app.app_context():  # создание базы банных
     db.create_all()
 
@@ -53,13 +54,15 @@ def load_user(user_id):  # создание сессии при авториза
 
 
 @app.route('/')
-def index():  # главная страница
-    return render_template('base.html')
+def index():
+    news_list = News.query.filter_by().all()  # главная страница
+    return render_template('base.html', all_news=news_list)
 
 
 @app.route('/home')
 def home():  # домашняя страница пользователя
-    return render_template('base.html')
+    news_list = News.query.filter_by().all()
+    return render_template('base.html', all_news=news_list)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -137,15 +140,12 @@ def edit_news(id):
         news.title = request.form['title']
         news.subtitle = request.form['subtitle']
         news.content = request.form['content']
-        photo = request.files["photo"]
         news.category = request.form['category']
-        news.photo = photo.filename
-        photo.save(os.path.join('static', 'img', photo.filename))
-        photo_data = photo.read()
         db.session.commit()
-        return redirect(url_for("dashboard"))
+        return redirect("/")
     else:
         return render_template("edit_news.html", news=news)
+
 
 # Страница удаления новостей
 @login_required
@@ -154,12 +154,13 @@ def delete_news(id):
     news = News.query.get_or_404(id)
     db.session.delete(news)
     db.session.commit()
-    return redirect(url_for("dashboard"))
+    return redirect("/")
 
 
 @app.route('/neural')
 def neural():
-    return render_template('neural.html')
+    news_list = News.query.filter_by(category="neural").all()
+    return render_template('neural.html', all_news=news_list)
 
 
 @app.route('/technique')
@@ -170,7 +171,8 @@ def technique():
 
 @app.route('/games')
 def games():
-    return render_template('games.html')
+    news_list = News.query.filter_by(category="games").all()
+    return render_template('games.html', all_news=news_list)
 
 
 @app.route('/add_news', methods=['GET', 'POST'])
@@ -185,12 +187,17 @@ def add_news():
         filename = photo.filename
         photo.save(os.path.join('static', 'img', filename))
         photo_data = photo.read()
-
         news = News(title=title, subtitle=subtitle, content=content, photo=filename, category=category)
         db.session.add(news)
         db.session.commit()
         return redirect('/home')
     return render_template('add_news.html')
+
+
+@app.route('/read_news/<int:id>')
+def read_news(id):
+    news = News.query.get_or_404(id)
+    return render_template("read_news.html", news=news)
 
 
 if __name__ == '__main__':

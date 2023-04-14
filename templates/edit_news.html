@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 <!-- Begin page content -->
-<main role="main" class="container">
+<main role="main" class="container" xmlns="http://www.w3.org/1999/html">
     {% block content %}
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -25,20 +25,17 @@
     <form method="POST" enctype="multipart/form-data">
       <div class="mb-3">
         <label for="title" class="form-label">Заголовок</label>
-        <input type="text" class="form-control" id="title" name="title" required>
+        <input type="text" class="form-control" id="title" name="title" value="{{ news.title }}" required>
+
       </div>
       <div class="mb-3">
         <label for="title" class="form-label">Подзаголовок</label>
-        <input type="text" class="form-control" id="subtitle" name="subtitle" required>
+        <input type="text" class="form-control" id="subtitle" name="subtitle" value="{{ news.subtitle }}" required>
       </div>
       <div class="mb-3">
         <label for="content" class="form-label">Содержание</label>
-        <textarea class="form-control" id="content" name="content" rows="5" required></textarea>
+        <textarea class="form-control" id="content" name="content" rows="5" required> {{ news.content }}</textarea>
       </div>
-       <div class="mb-3">
-           <label for="photo">Измените фотографию</label>
-           <input type="file" class="form-control-file" id="photo" name="photo">
-       </div>
       <div class="mb-3">
         <label for="category" class="form-label">Измените категорию</label>
         <select class="form-select" id="category" name="category" required>
