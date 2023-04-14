@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    <title>Удаление новостей</title>
+    <!-- Подключаем Bootstrap -->
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+</head>
+<body>
+<a class="navbar-brand" href="/">IT Журнал</a>
+<ul class="nav navbar-nav navbar-right">
+          <li><a href="/dashboard">Назад</a></li>
+          <li><a href="/logout">Выход из аккаунта</a></li>
+        </ul>
+    <div class="container">
+        <h1>Удаление новостей</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Заголовок</th>
+                    <th>Дата</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for news in all_news %}
+                <tr>
+                    <td>{{ news.title }}</td>
+                    <td>{{ news.date }}</td>
+                    <td>
+                        <form method="post" action="{{url_for('delete_news', id=news.id)}}">
+                            <a href="/delete_news/{{ news.id }}" class="btn btn-primary mx-auto" style="position: center; bottom: 0;">Удалить новость</a>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <!-- Подключаем JavaScript и jQuery для взаимодействия с веб-страницей -->
+    <script src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+</body>
+</html>

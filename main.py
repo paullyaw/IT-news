@@ -133,9 +133,9 @@ def dashboard():
 
 # Страница редактирования новостей
 @login_required
-@app.route("/edit_news/<int:id>", methods=["GET", "POST"])
-def edit_news(id):
-    news = News.query.get_or_404(id)
+@app.route("/edit_news", methods=["GET", "POST"])
+def edit_news():
+    news = News.query.get_or_404()
     if request.method == "POST":
         news.title = request.form['title']
         news.subtitle = request.form['subtitle']
@@ -192,6 +192,12 @@ def add_news():
         db.session.commit()
         return redirect('/home')
     return render_template('add_news.html')
+
+@app.route('/del_news')
+def news_editor():
+    news_list = News.query.filter_by().all()
+    return render_template('edit.html', all_news=news_list)
+
 
 
 @app.route('/read_news/<int:id>')
