@@ -27,6 +27,13 @@
 <!-- Begin page content -->
 <main role="main" class="container">
     {% block content %}
+	{% with messages = get_flashed_messages() %}
+   {% if messages %}
+      {% for message in messages %}
+         {{ message }}
+      {% endfor %}
+   {% endif %}
+{% endwith %}
 	<body>
 	<style>
 		h1	{

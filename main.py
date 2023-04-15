@@ -8,8 +8,17 @@ from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired, Email, EqualTo, Length
 import os
 from flask_restful import abort
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
 
 app = Flask(__name__)
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri="memory://"
+)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 app.config['SECRET_KEY'] = 'mysecretkey'
 db = SQLAlchemy(app)
@@ -54,6 +63,7 @@ def load_user(user_id):  # создание сессии при авториза
 
 
 @app.route('/')
+@limiter.limit("1/second", override_defaults=False)
 def index():
     news_list = News.query.filter_by().all()  # главная страница
     news_list = news_list[::-1]
@@ -61,6 +71,7 @@ def index():
 
 
 @app.route('/home')
+@limiter.limit("1/second", override_defaults=False)
 def home():  # домашняя страница пользователя
     news_list = News.query.filter_by().all()
     news_list = news_list[::-1]
@@ -68,6 +79,7 @@ def home():  # домашняя страница пользователя
 
 
 @app.route('/register', methods=['GET', 'POST'])
+@limiter.limit("1/second", override_defaults=False)
 def register():  # регистрация пользователя
     if request.method == 'POST':
         username = request.form['username']
@@ -82,6 +94,7 @@ def register():  # регистрация пользователя
 
 
 @app.route('/login', methods=['GET', 'POST'])
+@limiter.limit("1/second", override_defaults=False)
 def login():  # авторизация пользователя
     if request.method == 'POST':
         username = request.form['username']
@@ -97,6 +110,7 @@ def login():  # авторизация пользователя
 
 
 @app.route('/logout')
+@limiter.limit("1/second", override_defaults=False)
 def logout():  # выход из аккаунта и конец сессии
     logout_user()
     session.pop('user_id', None)
@@ -104,26 +118,33 @@ def logout():  # выход из аккаунта и конец сессии
 
 
 @app.route('/account', methods=['GET', 'POST'])
+@limiter.limit("1/second", override_defaults=False)
 @login_required
 def account():  # настройки аккаунта
     form = AccountForm()
     if request.method == 'POST':  # изменение данных пользователя
         user = User.query.filter_by(id=current_user.id).first()
-        user.username = form.username.data
-        user.email = form.email.data
-        db.session.commit()
-        flash('Your account has been updated!', 'success')
-        return redirect('/account')
+        if check_password_hash(user.password, form.password.data):
+            user.username = form.username.data
+            user.email = form.email.data
+            db.session.commit()
+            flash('Your account has been updated!', 'success')
+            return redirect('/account')
+        else:
+            flash('You entered wrong password', 'error')
+            return redirect('/account')
     elif request.method == 'GET':  # получение данных о пользователе
         user = User.query.filter_by(id=current_user.id).first()
         form.username.data = user.username
         form.email.data = user.email
+        form.password.data = user.password
     return render_template('account.html', form=form)
 
 
 # Главная страница панели администрирования
 @login_required
 @app.route("/dashboard")
+@limiter.limit("1/second", override_defaults=False)
 def dashboard():
     try:
         user = User.query.filter_by(id=current_user.id).first()
@@ -139,6 +160,7 @@ def dashboard():
 # Страница редактирования новостей
 @login_required
 @app.route("/edit_news/<int:id>", methods=["GET", "POST"])
+@limiter.limit("1/second", override_defaults=False)
 def edit_news(id):
     news = News.query.get_or_404(id)
     if request.method == "POST":
@@ -155,6 +177,7 @@ def edit_news(id):
 # Страница удаления новостей
 @login_required
 @app.route("/delete_news/<int:id>", methods=["DELETE"])
+@limiter.limit("1/second", override_defaults=False)
 def delete_news(id):
     news = News.query.get_or_404(id)
     db.session.delete(news)
@@ -163,6 +186,7 @@ def delete_news(id):
 
 
 @app.route('/neural')
+@limiter.limit("1/second", override_defaults=False)
 def neural():
     news_list = News.query.filter_by(category="neural").all()
     news_list = news_list[::-1]
@@ -170,6 +194,7 @@ def neural():
 
 
 @app.route('/technique')
+@limiter.limit("1/second", override_defaults=False)
 def technique():
     news_list = News.query.filter_by(category="technique").all()
     news_list = news_list[::-1]
@@ -177,6 +202,7 @@ def technique():
 
 
 @app.route('/games')
+@limiter.limit("1/second", override_defaults=False)
 def games():
     news_list = News.query.filter_by(category="games").all()
     news_list = news_list[::-1]
@@ -184,6 +210,7 @@ def games():
 
 
 @app.route('/add_news', methods=['GET', 'POST'])
+@limiter.limit("1/second", override_defaults=False)
 @login_required
 def add_news():
     if request.method == 'POST':
@@ -203,6 +230,7 @@ def add_news():
 
 
 @app.route('/del_news')
+@limiter.limit("1/second", override_defaults=False)
 def del_news():
     news_list = News.query.filter_by().all()
     news_list = news_list[::-1]
@@ -210,6 +238,7 @@ def del_news():
 
 
 @app.route("/editor")
+@limiter.limit("1/second", override_defaults=False)
 def editor():
     news_list = News.query.filter_by().all()
     news_list = news_list[::-1]
@@ -217,12 +246,14 @@ def editor():
 
 
 @app.route('/read_news/<int:id>')
+@limiter.limit("1/second", override_defaults=False)
 def read_news(id):
     news = News.query.get_or_404(id)
     return render_template("read_news.html", news=news)
 
 
 @app.route('/choose_news')
+@limiter.limit("1/second", override_defaults=False)
 def choose_news():
     pass
 
