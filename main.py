@@ -11,7 +11,6 @@ from flask_restful import abort
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
-
 app = Flask(__name__)
 limiter = Limiter(
     get_remote_address,
@@ -33,6 +32,9 @@ class User(UserMixin, db.Model):  # информация для базы дан�
     password = db.Column(db.String(60), nullable=False)
     role = db.Column(db.String(20), nullable=False)
 
+    def has_liked(self, news):
+        return Like.query.filter_by(user_id=self.id, news_id=news.id).count() > 0
+
 
 class News(db.Model):  # информация для базы данных новостей
     id = db.Column(db.Integer, primary_key=True)
@@ -43,6 +45,9 @@ class News(db.Model):  # информация для базы данных но�
     category = db.Column(db.String(20), nullable=False)
     date = db.Column(db.DateTime, nullable=False, default=datetime.today())
 
+    def num_likes(self):
+        return Like.query.filter_by(news_id=self.id).count()
+
 
 class AccountForm(FlaskForm):  # форма для настроек аккаунта
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
@@ -51,6 +56,12 @@ class AccountForm(FlaskForm):  # форма для настроек аккаун
                              validators=[EqualTo('confirm_password', message='Passwords must match')])
     confirm_password = PasswordField('Confirm Password')
     submit = SubmitField('Save Changes')
+
+
+class Like(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    news_id = db.Column(db.Integer, db.ForeignKey('news.id'), nullable=False)
 
 
 with app.app_context():  # создание базы банных
@@ -256,6 +267,22 @@ def read_news(id):
 @limiter.limit("1/second", override_defaults=False)
 def choose_news():
     pass
+
+
+@app.route('/like/<int:news_id>', methods=['POST'])
+@login_required
+def like(news_id):
+    news = News.query.get(news_id)
+    if news is None:
+        abort(404, message=f"News with id {news_id} not found")
+    if current_user.has_liked(news):
+        flash('You have already liked this news', 'warning')
+    else:
+        like = Like(user_id=current_user.id, news_id=news.id)
+        db.session.add(like)
+        db.session.commit()
+        flash('News liked!', 'success')
+    return redirect("/")
 
 
 def main():
