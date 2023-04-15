@@ -1,32 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
+{% extends "base.html" %}
+<main role="main" class="container">
+  {% block content %}
+  <link href="/static/css/bootstrap.min.css" rel="stylesheet">
   <title>Административная панель</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
   <link href="/static/css/dash.css" rel="stylesheet">
+
 </head>
 <body>
-  <nav class="navbar navbar-default navbar-fixed-top">
-    <div class="container">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse">
-          <span class="sr-only">Открыть меню навигации</span>
-          <i class="fa fa-bars"></i>
-        </button>
-        <a class="navbar-brand" href="/">IT Журнал</a>
-      </div>
-      <div class="collapse navbar-collapse" id="navbar-collapse">
-        <ul class="nav navbar-nav navbar-right">
-          <li><a href="#">Настройки</a></li>
-          <li><a href="/logout">Выход из аккаунта</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-  
   <div class="container">
     <div class="jumbotron">
       <h1>Добро пожаловать в административную панель новостного сайта!</h1>
@@ -54,4 +37,5 @@
   <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </body>
-</html>
+{% endblock %}
+</main>

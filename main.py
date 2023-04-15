@@ -1,5 +1,5 @@
 from datetime import datetime
-from flask import Flask, render_template, request, redirect, session, flash, send_file, url_for
+from flask import Flask, render_template, request, redirect, session, flash
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user, logout_user
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -7,6 +7,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired, Email, EqualTo, Length
 import os
+from flask_restful import abort
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
@@ -43,7 +44,6 @@ class AccountForm(FlaskForm):  # форма для настроек аккаун
     submit = SubmitField('Save Changes')
 
 
-
 with app.app_context():  # создание базы банных
     db.create_all()
 
@@ -56,12 +56,14 @@ def load_user(user_id):  # создание сессии при авториза
 @app.route('/')
 def index():
     news_list = News.query.filter_by().all()  # главная страница
+    news_list = news_list[::-1]
     return render_template('base.html', all_news=news_list)
 
 
 @app.route('/home')
 def home():  # домашняя страница пользователя
     news_list = News.query.filter_by().all()
+    news_list = news_list[::-1]
     return render_template('base.html', all_news=news_list)
 
 
@@ -116,19 +118,22 @@ def account():  # настройки аккаунта
         user = User.query.filter_by(id=current_user.id).first()
         form.username.data = user.username
         form.email.data = user.email
-    user = User.query.filter_by(id=current_user.id).first()
-    if user.role == "reader":
-        return render_template('account.html', form=form)
-    elif user.role == "admin":
-        return render_template('admin.html', form=form)
+    return render_template('account.html', form=form)
 
 
 # Главная страница панели администрирования
 @login_required
 @app.route("/dashboard")
 def dashboard():
-    news = News.query.all()
-    return render_template("dashboard.html", news=news)
+    try:
+        user = User.query.filter_by(id=current_user.id).first()
+        if user.role == "admin":
+            news = News.query.all()
+            return render_template("dashboard.html", news=news)
+        else:
+            abort(404)
+    except AttributeError:
+        abort(404)
 
 
 # Страница редактирования новостей
@@ -149,7 +154,7 @@ def edit_news(id):
 
 # Страница удаления новостей
 @login_required
-@app.route("/delete_news/<int:id>")
+@app.route("/delete_news/<int:id>", methods=["DELETE"])
 def delete_news(id):
     news = News.query.get_or_404(id)
     db.session.delete(news)
@@ -160,18 +165,21 @@ def delete_news(id):
 @app.route('/neural')
 def neural():
     news_list = News.query.filter_by(category="neural").all()
+    news_list = news_list[::-1]
     return render_template('neural.html', all_news=news_list)
 
 
 @app.route('/technique')
 def technique():
     news_list = News.query.filter_by(category="technique").all()
+    news_list = news_list[::-1]
     return render_template('technique.html', all_news=news_list)
 
 
 @app.route('/games')
 def games():
     news_list = News.query.filter_by(category="games").all()
+    news_list = news_list[::-1]
     return render_template('games.html', all_news=news_list)
 
 
@@ -193,15 +201,18 @@ def add_news():
         return redirect('/home')
     return render_template('add_news.html')
 
+
 @app.route('/del_news')
 def del_news():
     news_list = News.query.filter_by().all()
+    news_list = news_list[::-1]
     return render_template('del.html', all_news=news_list)
 
 
 @app.route("/editor")
 def editor():
     news_list = News.query.filter_by().all()
+    news_list = news_list[::-1]
     return render_template('edit.html', all_news=news_list)
 
 
@@ -211,5 +222,14 @@ def read_news(id):
     return render_template("read_news.html", news=news)
 
 
-if __name__ == '__main__':
+@app.route('/choose_news')
+def choose_news():
+    pass
+
+
+def main():
     app.run(debug=True, port=5000)
+
+
+if __name__ == '__main__':
+    main()

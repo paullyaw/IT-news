@@ -1,16 +1,13 @@
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/html">
+{% extends "base.html" %}
+<main role="main" class="container">
+  {% block content %}
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
 <head>
     <title>Редактирование новостей</title>
     <!-- Подключаем Bootstrap -->
     <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
 </head>
 <body>
-<a class="navbar-brand" href="/">IT Журнал</a>
-<ul class="nav navbar-nav navbar-right">
-          <li><a href="/dashboard">Назад</a></li>
-          <li><a href="/logout">Выход из аккаунта</a></li>
-        </ul>
     <div class="container">
         <h1>Редактирование новостей</h1>
         <table class="table">
@@ -40,4 +37,5 @@
     <script src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
 </body>
-</html>
+    {% endblock %}
+</main>
