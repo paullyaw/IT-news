@@ -25,7 +25,7 @@
         <a class="navbar-brand text-secondary" href="/games">Игры</a>
     <nav class="ms-auto">
         {% if current_user.is_authenticated %}
-        <a class="navbar-brand" href="/account">{{ current_user.username }}</a>
+        <a class="navbar-brand" href="/account">{{ username }}</a>
         <a class="navbar-brand" href="/logout">Выход</a>
         {% else %}
         <a class="navbar-brand" href="register">Регистрация</a>
@@ -56,10 +56,7 @@
     </style>
     <link href="/static/css/product.css" rel="stylesheet">
     <main>
-   {% if current_user.is_authenticated %}
-        <div class="position-relative overflow-hidden text-center">
-    <div class="col-md-5 p-lg-5 mx-auto my-5">
-      <style>
+        <style>
           .display-4{
           font-family: MullerExtraBold, sans-serif;
 		  font-size: 95px;
@@ -70,6 +67,9 @@
 			font-size: 25px;
 		  }
       </style>
+   {% if current_user.is_authenticated %}
+        <div class="position-relative overflow-hidden text-center">
+    <div class="col-md-5 p-lg-5 mx-auto my-5">
       <h1 class="display-4 fw-normal d-flex align-items-center justify-content-center"></h1>
       <p class="lead fw-normal"></p>
     </div>
@@ -104,6 +104,20 @@
     typeHeadline();
     setTimeout(typeSubline, 1500);
 </script>
+<script>
+    function getPosition() {
+      var position = window.scrollY;
+      return position;
+    }
+
+    window.addEventListener('scroll', function() {
+      var position = getPosition();
+      document.cookie = "position=" + position;
+    });
+
+    var position = getPosition();
+    document.cookie = "position=" + position;
+  </script>
 {% endif %}
 <div class="d-flex justify-content-center">
   <div class="row">
@@ -114,10 +128,14 @@
           <h2 class="display-5">{{ news.title }}</h2>
           <p class="lead">{{ news.subtitle }}</p>
         </div>
-        <img src="/static/img/{{ news.photo }}" style="width: 100%; height: 400px; object-fit: cover; border-radius: 21px 21px 0 0;">
-        <form action="/like/{{ news.id }}" method="POST" class="mt-3">
-          <button type="submit" class="btn btn-primary mx-auto">Like</button>
-        </form>
+        <img src="/static/img/{{ news.photo }}" style="width: 100%; height: 400px; object-fit: cover; border-radius: 21px 21px 21px 21px;">
+        {% if current_user.is_authenticated %}
+        {% if current_user.has_liked(news) %}
+          <a href="{{ url_for('unlike', news_id=news.id) }}" class="btn btn-danger unlike-btn">Unlike</a>
+        {% else %}
+          <a href="{{ url_for('like', news_id=news.id) }}" class="btn btn-success">Like</a>
+        {% endif %}
+      {% endif %}
         <p>{{ news.num_likes() }} Likes</p>
         <a href="/read_news/{{ news.id }}" class="btn btn-secondary mx-auto" style="position: center; bottom: 0;">Читать далее</a>
       </div>

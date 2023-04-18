@@ -23,11 +23,30 @@
       }
     </style>
     <link href="/static/css/product.css" rel="stylesheet">
-    <main>
-  <div class="position-relative overflow-hidden text-center mx-auto">
-      <h1>{{ news.title }}</h1>
-      <div>{{ news.content }}</div>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+<div class="container-fluid bg-light">
+  <div class="row">
+    <div class="col-md-6 my-3" style="text-align: center;">
+      <img src="/static/img/{{ news.photo }}" style="width: 80%; height: 600px; object-fit: cover; border-radius: 20px 20px 20px 20px;">
+    </div>
+    <div class="col-md-6 my-3">
+      <div class="position-relative text-center mx-auto" style="height: 600px; overflow: auto;">
+        <h1>{{ news.title }}</h1>
+        <div>{{ news.content }}</div>
+      </div>
+    </div>
+  </div>
 </div>
+{% if news.id != 1%}
+<a class="navbar-brand text-primary" href="/read_news/{{ back }}">Назад</a>
+{% endif %}
+{% if news.id - 1 != lenght%}
+<a class="navbar-brand text-primary" href="/read_news/{{ next }}">Вперед</a>
+{% endif %}
+
+
+
 </main>
     {% endblock %}
 </main>

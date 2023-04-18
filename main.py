@@ -1,52 +1,5 @@
-from datetime import datetime
-from flask import Flask, render_template, request, redirect, session, flash
-from flask_login import LoginManager, UserMixin, login_user, login_required, current_user, logout_user
-from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import DataRequired, Email, EqualTo, Length
-import os
-from flask_restful import abort
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
-
-app = Flask(__name__)
-limiter = Limiter(
-    get_remote_address,
-    app=app,
-    default_limits=["200 per day", "50 per hour"],
-    storage_uri="memory://"
-)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
-app.config['SECRET_KEY'] = 'mysecretkey'
-db = SQLAlchemy(app)
-login_manager = LoginManager()
-login_manager.init_app(app)
-
-
-class User(UserMixin, db.Model):  # информация для базы данных пользователей
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(60), nullable=False)
-    role = db.Column(db.String(20), nullable=False)
-
-    def has_liked(self, news):
-        return Like.query.filter_by(user_id=self.id, news_id=news.id).count() > 0
-
-
-class News(db.Model):  # информация для базы данных новостей
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), nullable=False)
-    subtitle = db.Column(db.String(100), nullable=False)
-    content = db.Column(db.Text, nullable=False)
-    photo = db.Column(db.String, nullable=False)
-    category = db.Column(db.String(20), nullable=False)
-    date = db.Column(db.DateTime, nullable=False, default=datetime.today())
-
-    def num_likes(self):
-        return Like.query.filter_by(news_id=self.id).count()
+from imports import *
+from data import *
 
 
 class AccountForm(FlaskForm):  # форма для настроек аккаунта
@@ -58,14 +11,13 @@ class AccountForm(FlaskForm):  # форма для настроек аккаун
     submit = SubmitField('Save Changes')
 
 
-class Like(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    news_id = db.Column(db.Integer, db.ForeignKey('news.id'), nullable=False)
-
-
 with app.app_context():  # создание базы банных
     db.create_all()
+
+
+def usernames():
+    username = session.get('username')
+    return username
 
 
 @login_manager.user_loader
@@ -76,9 +28,12 @@ def load_user(user_id):  # создание сессии при авториза
 @app.route('/')
 @limiter.limit("1/second", override_defaults=False)
 def index():
-    news_list = News.query.filter_by().all()  # главная страница
+    news_list = News.query.filter_by().all()
+    likes_list = Like.query.filter_by().all()  # главная страница
     news_list = news_list[::-1]
-    return render_template('base.html', all_news=news_list)
+    username = usernames()
+    return render_template('base.html', all_news=news_list, like=likes_list, current_user=current_user,
+                           username=username)
 
 
 @app.route('/home')
@@ -86,7 +41,8 @@ def index():
 def home():  # домашняя страница пользователя
     news_list = News.query.filter_by().all()
     news_list = news_list[::-1]
-    return render_template('base.html', all_news=news_list)
+    username = usernames()
+    return render_template('base.html', all_news=news_list, username=username)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -94,6 +50,7 @@ def home():  # домашняя страница пользователя
 def register():  # регистрация пользователя
     if request.method == 'POST':
         username = request.form['username']
+        username = username.lower()
         email = request.form['email']
         password = request.form['password']
         hashed_password = generate_password_hash(password, method='sha256')
@@ -109,12 +66,18 @@ def register():  # регистрация пользователя
 def login():  # авторизация пользователя
     if request.method == 'POST':
         username = request.form['username']
+        username = username.lower()
         password = request.form['password']
         user = User.query.filter_by(username=username).first()
         if user and check_password_hash(user.password, password):
             session['user_id'] = user.id
+            session['username'] = username
+            session.permanent = True
+            app.permanent_session_lifetime = timedelta(minutes=1)
             login_user(user)
-            return redirect("/home")
+            resp = make_response(redirect("/home"))
+            resp.set_cookie('username', username)
+            return resp
         else:
             return render_template('login.html', message='Invalid email or password')
     return render_template('login.html')
@@ -133,6 +96,7 @@ def logout():  # выход из аккаунта и конец сессии
 @login_required
 def account():  # настройки аккаунта
     form = AccountForm()
+    username = usernames()
     if request.method == 'POST':  # изменение данных пользователя
         user = User.query.filter_by(id=current_user.id).first()
         if check_password_hash(user.password, form.password.data):
@@ -145,11 +109,12 @@ def account():  # настройки аккаунта
             flash('You entered wrong password', 'error')
             return redirect('/account')
     elif request.method == 'GET':  # получение данных о пользователе
+        username = request.cookies.get('username')
         user = User.query.filter_by(id=current_user.id).first()
-        form.username.data = user.username
+        form.username.data = username
         form.email.data = user.email
         form.password.data = user.password
-    return render_template('account.html', form=form)
+    return render_template('account.html', form=form, username=username)
 
 
 # Главная страница панели администрирования
@@ -159,9 +124,10 @@ def account():  # настройки аккаунта
 def dashboard():
     try:
         user = User.query.filter_by(id=current_user.id).first()
+        username = usernames()
         if user.role == "admin":
             news = News.query.all()
-            return render_template("dashboard.html", news=news)
+            return render_template("dashboard.html", news=news, username=username)
         else:
             abort(404)
     except AttributeError:
@@ -174,56 +140,61 @@ def dashboard():
 @limiter.limit("1/second", override_defaults=False)
 def edit_news(id):
     news = News.query.get_or_404(id)
+    username = usernames()
     if request.method == "POST":
         news.title = request.form['title']
         news.subtitle = request.form['subtitle']
         news.content = request.form['content']
         news.category = request.form['category']
         db.session.commit()
-        return redirect("/")
+        return redirect("/editor")
     else:
-        return render_template("edit_news.html", news=news)
+        return render_template("edit_news.html", news=news, username=username)
 
 
 # Страница удаления новостей
 @login_required
-@app.route("/delete_news/<int:id>", methods=["DELETE"])
+@app.route("/delete_news/<int:id>")
 @limiter.limit("1/second", override_defaults=False)
 def delete_news(id):
     news = News.query.get_or_404(id)
     db.session.delete(news)
     db.session.commit()
-    return redirect("/")
+    return redirect("/del_news")
 
 
 @app.route('/neural')
 @limiter.limit("1/second", override_defaults=False)
 def neural():
     news_list = News.query.filter_by(category="neural").all()
+    username = usernames()
     news_list = news_list[::-1]
-    return render_template('neural.html', all_news=news_list)
+    return render_template('neural.html', all_news=news_list, username=username)
 
 
 @app.route('/technique')
 @limiter.limit("1/second", override_defaults=False)
 def technique():
     news_list = News.query.filter_by(category="technique").all()
+    username = usernames()
     news_list = news_list[::-1]
-    return render_template('technique.html', all_news=news_list)
+    return render_template('technique.html', all_news=news_list, username=username)
 
 
 @app.route('/games')
 @limiter.limit("1/second", override_defaults=False)
 def games():
     news_list = News.query.filter_by(category="games").all()
+    username = usernames()
     news_list = news_list[::-1]
-    return render_template('games.html', all_news=news_list)
+    return render_template('games.html', all_news=news_list, username=username)
 
 
 @app.route('/add_news', methods=['GET', 'POST'])
 @limiter.limit("1/second", override_defaults=False)
 @login_required
 def add_news():
+    username = usernames()
     if request.method == 'POST':
         title = request.form['title']
         subtitle = request.form['subtitle']
@@ -231,13 +202,16 @@ def add_news():
         photo = request.files["photo"]
         category = request.form['category']
         filename = photo.filename
-        photo.save(os.path.join('static', 'img', filename))
-        photo_data = photo.read()
-        news = News(title=title, subtitle=subtitle, content=content, photo=filename, category=category)
+        try:
+            photo.save(os.path.join('static', 'img', filename))
+            photo_data = photo.read()
+            news = News(title=title, subtitle=subtitle, content=content, photo=filename, category=category)
+        except IsADirectoryError:
+            news = News(title=title, subtitle=subtitle, content=content, category=category)
         db.session.add(news)
         db.session.commit()
-        return redirect('/home')
-    return render_template('add_news.html')
+        return redirect('/dashboard')
+    return render_template('add_news.html', username=username)
 
 
 @app.route('/del_news')
@@ -245,22 +219,42 @@ def add_news():
 def del_news():
     news_list = News.query.filter_by().all()
     news_list = news_list[::-1]
-    return render_template('del.html', all_news=news_list)
+    username = usernames()
+    return render_template('del.html', all_news=news_list, username=username)
 
 
 @app.route("/editor")
 @limiter.limit("1/second", override_defaults=False)
 def editor():
     news_list = News.query.filter_by().all()
+    username = usernames()
     news_list = news_list[::-1]
-    return render_template('edit.html', all_news=news_list)
+    return render_template('edit.html', all_news=news_list, username=username)
 
 
 @app.route('/read_news/<int:id>')
 @limiter.limit("1/second", override_defaults=False)
 def read_news(id):
+    username = usernames()
+    news_list = News.query.filter_by().all()
+    for idx, i in enumerate(news_list):
+        if i.id == id:
+            next_idx = idx + 1
+            back = idx - 1
+            try:
+                next = news_list[next_idx].id
+            except IndexError:
+                next = i.id
+            try:
+                back = news_list[back].id
+            except IndexError:
+                back = i.id
+
+    lenght = len(news_list)
+    print(lenght)
     news = News.query.get_or_404(id)
-    return render_template("read_news.html", news=news)
+    return render_template("read_news.html", news=news, username=username, lenght=lenght, all_news=news_list, next=next,
+                           back=back)
 
 
 @app.route('/choose_news')
@@ -269,7 +263,7 @@ def choose_news():
     pass
 
 
-@app.route('/like/<int:news_id>', methods=['POST'])
+@app.route('/like/<int:news_id>')
 @login_required
 def like(news_id):
     news = News.query.get(news_id)
@@ -282,11 +276,28 @@ def like(news_id):
         db.session.add(like)
         db.session.commit()
         flash('News liked!', 'success')
-    return redirect("/")
+    session['previous_page'] = request.referrer
+    return redirect(session['previous_page'])
+
+
+@app.route('/unlike/<int:news_id>')
+@login_required
+def unlike(news_id):
+    news = News.query.get_or_404(news_id)
+    if current_user.has_liked(news):
+        like = Like.query.filter_by(user_id=current_user.id, news_id=news.id).first()
+        db.session.delete(like)
+        db.session.commit()
+        flash('Like removed!', 'success')
+    else:
+        flash('You have not liked this news.', 'danger')
+    session['previous_page'] = request.referrer
+    return redirect(session['previous_page'])
 
 
 def main():
-    app.run(debug=True, port=5000)
+    port = 5000
+    app.run(debug=True, port=port)
 
 
 if __name__ == '__main__':
