@@ -73,7 +73,7 @@ def login():  # авторизация пользователя
             session['user_id'] = user.id
             session['username'] = username
             session.permanent = True
-            app.permanent_session_lifetime = timedelta(minutes=1)
+            app.permanent_session_lifetime = timedelta(minutes=90)
             login_user(user)
             resp = make_response(redirect("/home"))
             resp.set_cookie('username', username)
@@ -86,9 +86,11 @@ def login():  # авторизация пользователя
 @app.route('/logout')
 @limiter.limit("1/second", override_defaults=False)
 def logout():  # выход из аккаунта и конец сессии
+    session.clear()
     logout_user()
-    session.pop('user_id', None)
-    return redirect("/")
+    resp = make_response(redirect("/"))
+    resp.set_cookie('username', '', expires=0)
+    return resp
 
 
 @app.route('/account', methods=['GET', 'POST'])
@@ -251,7 +253,6 @@ def read_news(id):
                 back = i.id
 
     lenght = len(news_list)
-    print(lenght)
     news = News.query.get_or_404(id)
     return render_template("read_news.html", news=news, username=username, lenght=lenght, all_news=news_list, next=next,
                            back=back)

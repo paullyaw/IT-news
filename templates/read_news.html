@@ -27,23 +27,31 @@
 
 <div class="container-fluid bg-light">
   <div class="row">
-    <div class="col-md-6 my-3" style="text-align: center;">
-      <img src="/static/img/{{ news.photo }}" style="width: 80%; height: 600px; object-fit: cover; border-radius: 20px 20px 20px 20px;">
+    <div class="col-md-6 my-3 order-md-2 d-flex align-items-center justify-content-center">
+      <img src="/static/img/{{ news.photo }}" style="max-width: 100%; height: 700px; object-fit: cover; border-radius: 20px;">
     </div>
-    <div class="col-md-6 my-3">
-      <div class="position-relative text-center mx-auto" style="height: 600px; overflow: auto;">
+    <div class="col-md-6 my-3 order-md-1">
+      <div class="position-relative mx-auto" style="height: 700px; overflow: auto;">
         <h1>{{ news.title }}</h1>
         <div>{{ news.content }}</div>
       </div>
     </div>
   </div>
 </div>
+{% if current_user.is_authenticated %}
+        {% if current_user.has_liked(news) %}
+          <a href="{{ url_for('unlike', news_id=news.id) }}" class="btn btn-danger unlike-btn">Unlike</a>
+        {% else %}
+          <a href="{{ url_for('like', news_id=news.id) }}" class="btn btn-success">Like</a>
+        {% endif %}
+      {% endif %}
 {% if news.id != 1%}
-<a class="navbar-brand text-primary" href="/read_news/{{ back }}">Назад</a>
+<a class="navbar-brand ml-auto text-dark" href="/read_news/{{ back }}">Назад</a>
 {% endif %}
 {% if news.id - 1 != lenght%}
-<a class="navbar-brand text-primary" href="/read_news/{{ next }}">Вперед</a>
+<a class="navbar-brand mr-auto text-dark" href="/read_news/{{ next }}">Вперед</a>
 {% endif %}
+
 
 
 
