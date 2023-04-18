@@ -20,16 +20,16 @@
        <a class="navbar-brand" href="/">
 			<span class="special">IT-ЖУРНАЛ</span>
 		</a>
-      <a class="navbar-brand text-primary" href="/neural">Нейросети</a>
-     <a class="navbar-brand text-info" href="/technique">Техника</a>
-        <a class="navbar-brand text-secondary" href="/games">Игры</a>
+      <a class="navbar-brand text-primary" href="{{ url_for('neural') }}">Нейросети</a>
+     <a class="navbar-brand text-info" href="{{ url_for('technique') }}">Техника</a>
+        <a class="navbar-brand text-secondary" href="{{ url_for('games') }}">Игры</a>
     <nav class="ms-auto">
         {% if current_user.is_authenticated %}
-        <a class="navbar-brand" href="/account">{{ username }}</a>
-        <a class="navbar-brand" href="/logout">Выход</a>
+        <a class="navbar-brand" href="{{ url_for('account') }}">{{ username }}</a>
+        <a class="navbar-brand" href="{{ url_for('logout') }}">Выход</a>
         {% else %}
-        <a class="navbar-brand" href="register">Регистрация</a>
-        <a class="navbar-brand" href="login">Вход</a>
+        <a class="navbar-brand" href="{{ url_for('register') }}">Регистрация</a>
+        <a class="navbar-brand" href="{{ url_for('login') }}">Вход</a>
         {% endif %}
       </nav>
     </nav>

@@ -20,10 +20,10 @@ class User(UserMixin, db.Model):  # информация для базы дан�
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
     role = db.Column(db.String(20), nullable=False)
+    preferences = db.Column(db.String(100))
 
     def has_liked(self, news):
         return Like.query.filter_by(user_id=self.id, news_id=news.id).count() > 0
-
 
 class Like(db.Model):
     id = db.Column(db.Integer, primary_key=True)
