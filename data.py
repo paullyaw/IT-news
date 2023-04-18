@@ -24,6 +24,7 @@ class User(UserMixin, db.Model):  # информация для базы дан�
     def has_liked(self, news):
         return Like.query.filter_by(user_id=self.id, news_id=news.id).count() > 0
 
+
 class Like(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -41,3 +42,10 @@ class News(db.Model):  # информация для базы данных но�
 
     def num_likes(self):
         return Like.query.filter_by(news_id=self.id).count()
+
+
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=False)
+    news_id = db.Column(db.Integer, db.ForeignKey('news.id'), nullable=False)
+    commentator = db.Column(db.String(100), nullable=False)

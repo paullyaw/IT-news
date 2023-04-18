@@ -51,9 +51,20 @@
 {% if news.id - 1 != lenght%}
 <a class="navbar-brand mr-auto text-dark" href="/read_news/{{ next }}">Вперед</a>
 {% endif %}
-
-
-
+{% if current_user.is_authenticated %}
+    <h3>Комментарии</h3>
+      {% for comment in comm %}
+        <div class="comment">
+          <p>{{comment.content}}</p>
+        </div>
+      {% endfor %}
+      <form method="POST" action="{{ url_for('add_comment', id=news.id) }}">
+        <div class="form-group">
+          <textarea class="form-control" name="content"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Добавить комментарий</button>
+      </form>
+{% endif %}
 
 </main>
     {% endblock %}

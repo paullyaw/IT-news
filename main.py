@@ -62,7 +62,7 @@ def register():  # регистрация пользователя
 
 
 @app.route('/login', methods=['GET', 'POST'])
-@limiter.limit("1/second", override_defaults=False)
+@limiter.limit("10/second", override_defaults=False)
 def login():  # авторизация пользователя
     if request.method == 'POST':
         username = request.form['username']
@@ -94,7 +94,7 @@ def logout():  # выход из аккаунта и конец сессии
 
 
 @app.route('/account', methods=['GET', 'POST'])
-@limiter.limit("1/second", override_defaults=False)
+@limiter.limit("10/second", override_defaults=False)
 @login_required
 def account():  # настройки аккаунта
     form = AccountForm()
@@ -254,8 +254,10 @@ def read_news(id):
 
     lenght = len(news_list)
     news = News.query.get_or_404(id)
+    comm = Comment.query.filter_by(news_id=id)
+
     return render_template("read_news.html", news=news, username=username, lenght=lenght, all_news=news_list, next=next,
-                           back=back)
+                           back=back, comm=comm)
 
 
 @app.route('/choose_news')
@@ -295,6 +297,15 @@ def unlike(news_id):
     session['previous_page'] = request.referrer
     return redirect(session['previous_page'])
 
+
+@app.route('/add-comment/<int:id>', methods=['POST'])
+def add_comment(id):
+    content = request.form['content']
+    user = current_user.username
+    comment = Comment(content=content, news_id=id, commentator=user)
+    db.session.add(comment)
+    db.session.commit()
+    return redirect(url_for('index'))
 
 def main():
     port = 5000
