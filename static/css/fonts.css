@@ -17,3 +17,17 @@
     font-style: normal;
     font-weight: 500;
 }
+
+@font-face {
+    font-family: "MullerHairline";
+    src: url("../fonts/MullerHairline/MullerHairline.ttf") format("truetype");
+    font-style: normal;
+    font-weight: 100;
+}
+
+@font-face {
+    font-family: "MullerRegular";
+    src: url("../fonts/MullerRegular/MullerRegular.ttf") format("truetype");
+    font-style: normal;
+    font-weight: 400;
+}

@@ -255,7 +255,8 @@ def read_news(id):
     lenght = len(news_list)
     news = News.query.get_or_404(id)
     comm = Comment.query.filter_by(news_id=id)
-
+    news.views += 1
+    db.session.commit()
     return render_template("read_news.html", news=news, username=username, lenght=lenght, all_news=news_list, next=next,
                            back=back, comm=comm)
 
@@ -306,6 +307,7 @@ def add_comment(id):
     db.session.add(comment)
     db.session.commit()
     return redirect(url_for('index'))
+
 
 def main():
     port = 5000
