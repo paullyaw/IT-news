@@ -39,6 +39,7 @@ class News(db.Model):  # информация для базы данных но�
     photo = db.Column(db.String, nullable=False, default="cat.jpeg")
     category = db.Column(db.String(20), nullable=False)
     date = db.Column(db.DateTime, nullable=False, default=datetime.today())
+    views = db.Column(db.Integer, default=0)
 
     def num_likes(self):
         return Like.query.filter_by(news_id=self.id).count()
