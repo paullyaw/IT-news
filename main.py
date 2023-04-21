@@ -357,6 +357,21 @@ def add_comment(id):
     db.session.commit()
     return redirect(url_for('index'))
 
+@app.route('/del_coment/<int:id>', methods=['POST'])
+def del_comment(id):
+    try:
+        user = User.query.filter_by(id=current_user.id).first()
+        username = usernames()
+        if user.role == "admin":
+            comm = Comment.get_or_404(id)
+            db.session.delete(comm)
+            db.session.commit()
+        else:
+            abort(404)
+    except AttributeError:
+        abort(404)
+
+
 def main():
     port = 5000
     app.run(debug=True, port=port)
