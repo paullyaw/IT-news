@@ -122,7 +122,7 @@ def account():  # настройки аккаунта
 # Главная страница панели администрирования
 @login_required
 @app.route("/dashboard")
-@limiter.limit("10/second", override_defaults=False)
+@limiter.limit("1/second", override_defaults=False)
 def dashboard():
     try:
         user = User.query.filter_by(id=current_user.id).first()
@@ -139,26 +139,46 @@ def dashboard():
 # Страница редактирования новостей
 @login_required
 @app.route("/edit_news/<int:id>", methods=["GET", "POST"])
-@limiter.limit("10/second", override_defaults=False)
+@limiter.limit("1/second", override_defaults=False)
 def edit_news(id):
-    news = News.query.get_or_404(id)
-    username = usernames()
-    if request.method == "POST":
-        news.title = request.form['title']
-        news.subtitle = request.form['subtitle']
-        news.content = request.form['content']
-        news.category = request.form['category']
-        db.session.commit()
-        return redirect("/editor")
-    else:
-        return render_template("edit_news.html", news=news, username=username)
+    try:
+        user = User.query.filter_by(id=current_user.id).first()
+        username = usernames()
+        if user.role == "admin":
+            news = News.query.get_or_404(id)
+            username = usernames()
+            if request.method == "POST":
+                news.title = request.form['title']
+                news.subtitle = request.form['subtitle']
+                news.content = request.form['content']
+                news.category = request.form['category']
+                db.session.commit()
+                return redirect("/editor")
+            else:
+                return render_template("edit_news.html", news=news, username=username)
+        else:
+            abort(404)
+    except AttributeError:
+        abort(404)
 
 
 # Страница удаления новостей
 @login_required
 @app.route("/delete_news/<int:id>")
-@limiter.limit("10/second", override_defaults=False)
+@limiter.limit("1/second", override_defaults=False)
 def delete_news(id):
+    try:
+        user = User.query.filter_by(id=current_user.id).first()
+        username = usernames()
+        if user.role == "admin":
+            news = News.query.get_or_404(id)
+            db.session.delete(news)
+            db.session.commit()
+            return redirect("/del_news")
+        else:
+            abort(404)
+    except AttributeError:
+        abort(404)
     news = News.query.get_or_404(id)
     db.session.delete(news)
     db.session.commit()
@@ -166,7 +186,7 @@ def delete_news(id):
 
 
 @app.route('/neural')
-@limiter.limit("2/second", override_defaults=False)
+@limiter.limit("1/second", override_defaults=False)
 def neural():
     news_list = News.query.filter_by(category="neural").all()
     username = usernames()
@@ -175,7 +195,7 @@ def neural():
 
 
 @app.route('/technique')
-@limiter.limit("10/second", override_defaults=False)
+@limiter.limit("1/second", override_defaults=False)
 def technique():
     news_list = News.query.filter_by(category="technique").all()
     username = usernames()
@@ -184,7 +204,7 @@ def technique():
 
 
 @app.route('/games')
-@limiter.limit("2/second", override_defaults=False)
+@limiter.limit("1/second", override_defaults=False)
 def games():
     news_list = News.query.filter_by(category="games").all()
     username = usernames()
@@ -193,50 +213,79 @@ def games():
 
 
 @app.route('/add_news', methods=['GET', 'POST'])
-@limiter.limit("10/second", override_defaults=False)
+@limiter.limit("1/second", override_defaults=False)
 @login_required
 def add_news():
-    username = usernames()
-    if request.method == 'POST':
-        title = request.form['title']
-        subtitle = request.form['subtitle']
-        content = request.form['content']
-        photo = request.files["photo"]
-        category = request.form['category']
-        filename = photo.filename
-        try:
-            photo.save(os.path.join('static', 'img', filename))
-            photo_data = photo.read()
-            news = News(title=title, subtitle=subtitle, content=content, photo=filename, category=category)
-        except IsADirectoryError:
-            news = News(title=title, subtitle=subtitle, content=content, category=category)
-        db.session.add(news)
-        db.session.commit()
-        return redirect('/dashboard')
-    return render_template('add_news.html', username=username)
+    try:
+        user = User.query.filter_by(id=current_user.id).first()
+        username = usernames()
+        if user.role == "admin":
+            username = usernames()
+            if request.method == 'POST':
+                title = request.form['title']
+                subtitle = request.form['subtitle']
+                content = request.form['content']
+                photo = request.files["photo"]
+                category = request.form['category']
+                filename = photo.filename
+                try:
+                    photo.save(os.path.join('static', 'img', filename))
+                    photo_data = photo.read()
+                    news = News(title=title, subtitle=subtitle, content=content, photo=filename, category=category)
+                except IsADirectoryError:
+                    news = News(title=title, subtitle=subtitle, content=content, category=category)
+                db.session.add(news)
+                db.session.commit()
+                return redirect('/dashboard')
+            return render_template('add_news.html', username=username)
+        else:
+            abort(404)
+    except AttributeError:
+        abort(404)
+    news = News.query.get_or_404(id)
+    db.session.delete(news)
+    db.session.commit()
+    return redirect("/del_news")
+
 
 
 @app.route('/del_news')
-@login_required
-@limiter.limit("2/second", override_defaults=False)
+@limiter.limit("1/second", override_defaults=False)
 def del_news():
-    news_list = News.query.filter_by().all()
-    news_list = news_list[::-1]
-    username = usernames()
-    return render_template('del.html', all_news=news_list, username=username)
+    try:
+        user = User.query.filter_by(id=current_user.id).first()
+        username = usernames()
+        if user.role == "admin":
+            news_list = News.query.filter_by().all()
+            news_list = news_list[::-1]
+            username = usernames()
+            return render_template('del.html', all_news=news_list, username=username)
+        else:
+            abort(404)
+    except AttributeError:
+        abort(404)
 
 
 @app.route("/editor")
-@login_required
-@limiter.limit("10/second", override_defaults=False)
+@limiter.limit("1/second", override_defaults=False)
 def editor():
-    news_list = News.query.filter_by().all()
-    username = usernames()
-    news_list = news_list[::-1]
-    return render_template('edit.html', all_news=news_list, username=username)
+    try:
+        user = User.query.filter_by(id=current_user.id).first()
+        username = usernames()
+        if user.role == "admin":
+            news_list = News.query.filter_by().all()
+            username = usernames()
+            news_list = news_list[::-1]
+            return render_template('edit.html', all_news=news_list, username=username)
+        else:
+            abort(404)
+    except AttributeError:
+        abort(404)
+
+
 
 @app.route('/read_news/<int:id>')
-@limiter.limit("10/second", override_defaults=False)
+@limiter.limit("1/second", override_defaults=False)
 def read_news(id):
     username = usernames()
     news_list = News.query.filter_by().all()
@@ -262,11 +311,11 @@ def read_news(id):
 
 
 @app.route('/choose_news')
-@limiter.limit("2/second", override_defaults=False)
+@limiter.limit("1/second", override_defaults=False)
 def choose_news():
     pass
 
-@limiter.limit('2/second')
+
 @app.route('/like/<int:news_id>')
 @login_required
 def like(news_id):
@@ -283,7 +332,7 @@ def like(news_id):
     session['previous_page'] = request.referrer
     return redirect(session['previous_page'])
 
-@limiter.limit('2/second')
+
 @app.route('/unlike/<int:news_id>')
 @login_required
 def unlike(news_id):
@@ -298,7 +347,7 @@ def unlike(news_id):
     session['previous_page'] = request.referrer
     return redirect(session['previous_page'])
 
-@limiter.limit('2/second')
+
 @app.route('/add-comment/<int:id>', methods=['POST'])
 def add_comment(id):
     content = request.form['content']
@@ -307,14 +356,6 @@ def add_comment(id):
     db.session.add(comment)
     db.session.commit()
     return redirect(url_for('index'))
-
-@login_required
-@app.route('/del-comment/<int:id>', methods=['POST'])
-def del_comment(id):
-    comm = Comment.query.get_or_404(id)
-    db.session.delete(comm)
-    db.session.commit()
-
 
 def main():
     port = 5000
