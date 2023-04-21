@@ -122,7 +122,7 @@ def account():  # настройки аккаунта
 # Главная страница панели администрирования
 @login_required
 @app.route("/dashboard")
-@limiter.limit("1/second", override_defaults=False)
+@limiter.limit("10/second", override_defaults=False)
 def dashboard():
     try:
         user = User.query.filter_by(id=current_user.id).first()
@@ -139,7 +139,7 @@ def dashboard():
 # Страница редактирования новостей
 @login_required
 @app.route("/edit_news/<int:id>", methods=["GET", "POST"])
-@limiter.limit("1/second", override_defaults=False)
+@limiter.limit("10/second", override_defaults=False)
 def edit_news(id):
     news = News.query.get_or_404(id)
     username = usernames()
@@ -157,7 +157,7 @@ def edit_news(id):
 # Страница удаления новостей
 @login_required
 @app.route("/delete_news/<int:id>")
-@limiter.limit("1/second", override_defaults=False)
+@limiter.limit("10/second", override_defaults=False)
 def delete_news(id):
     news = News.query.get_or_404(id)
     db.session.delete(news)
@@ -166,7 +166,7 @@ def delete_news(id):
 
 
 @app.route('/neural')
-@limiter.limit("1/second", override_defaults=False)
+@limiter.limit("2/second", override_defaults=False)
 def neural():
     news_list = News.query.filter_by(category="neural").all()
     username = usernames()
@@ -175,7 +175,7 @@ def neural():
 
 
 @app.route('/technique')
-@limiter.limit("1/second", override_defaults=False)
+@limiter.limit("10/second", override_defaults=False)
 def technique():
     news_list = News.query.filter_by(category="technique").all()
     username = usernames()
@@ -184,7 +184,7 @@ def technique():
 
 
 @app.route('/games')
-@limiter.limit("1/second", override_defaults=False)
+@limiter.limit("2/second", override_defaults=False)
 def games():
     news_list = News.query.filter_by(category="games").all()
     username = usernames()
@@ -193,7 +193,7 @@ def games():
 
 
 @app.route('/add_news', methods=['GET', 'POST'])
-@limiter.limit("1/second", override_defaults=False)
+@limiter.limit("10/second", override_defaults=False)
 @login_required
 def add_news():
     username = usernames()
@@ -217,7 +217,8 @@ def add_news():
 
 
 @app.route('/del_news')
-@limiter.limit("1/second", override_defaults=False)
+@login_required
+@limiter.limit("2/second", override_defaults=False)
 def del_news():
     news_list = News.query.filter_by().all()
     news_list = news_list[::-1]
@@ -226,16 +227,16 @@ def del_news():
 
 
 @app.route("/editor")
-@limiter.limit("1/second", override_defaults=False)
+@login_required
+@limiter.limit("10/second", override_defaults=False)
 def editor():
     news_list = News.query.filter_by().all()
     username = usernames()
     news_list = news_list[::-1]
     return render_template('edit.html', all_news=news_list, username=username)
 
-
 @app.route('/read_news/<int:id>')
-@limiter.limit("1/second", override_defaults=False)
+@limiter.limit("10/second", override_defaults=False)
 def read_news(id):
     username = usernames()
     news_list = News.query.filter_by().all()
@@ -261,11 +262,11 @@ def read_news(id):
 
 
 @app.route('/choose_news')
-@limiter.limit("1/second", override_defaults=False)
+@limiter.limit("2/second", override_defaults=False)
 def choose_news():
     pass
 
-
+@limiter.limit('2/second')
 @app.route('/like/<int:news_id>')
 @login_required
 def like(news_id):
@@ -282,7 +283,7 @@ def like(news_id):
     session['previous_page'] = request.referrer
     return redirect(session['previous_page'])
 
-
+@limiter.limit('2/second')
 @app.route('/unlike/<int:news_id>')
 @login_required
 def unlike(news_id):
@@ -297,7 +298,7 @@ def unlike(news_id):
     session['previous_page'] = request.referrer
     return redirect(session['previous_page'])
 
-
+@limiter.limit('2/second')
 @app.route('/add-comment/<int:id>', methods=['POST'])
 def add_comment(id):
     content = request.form['content']
@@ -306,6 +307,14 @@ def add_comment(id):
     db.session.add(comment)
     db.session.commit()
     return redirect(url_for('index'))
+
+@login_required
+@app.route('/del-comment/<int:id>', methods=['POST'])
+def del_comment(id):
+    comm = Comment.query.get_or_404(id)
+    db.session.delete(comm)
+    db.session.commit()
+
 
 def main():
     port = 5000
