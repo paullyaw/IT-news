@@ -26,7 +26,7 @@ def load_user(user_id):  # создание сессии при авториза
 
 
 @app.route('/')
-@limiter.limit("1/second", override_defaults=False)
+@limiter.limit("5/second", override_defaults=False)
 def index():
     news_list = News.query.filter_by().all()
     likes_list = Like.query.filter_by().all()  # главная страница
@@ -37,7 +37,7 @@ def index():
 
 
 @app.route('/home')
-@limiter.limit("1/second", override_defaults=False)
+@limiter.limit("3/second", override_defaults=False)
 def home():  # домашняя страница пользователя
     news_list = News.query.filter_by().all()
     news_list = news_list[::-1]
@@ -46,7 +46,7 @@ def home():  # домашняя страница пользователя
 
 
 @app.route('/register', methods=['GET', 'POST'])
-@limiter.limit("1/second", override_defaults=False)
+@limiter.limit("5/second", override_defaults=False)
 def register():  # регистрация пользователя
     if request.method == 'POST':
         username = request.form['username']
@@ -62,7 +62,7 @@ def register():  # регистрация пользователя
 
 
 @app.route('/login', methods=['GET', 'POST'])
-@limiter.limit("10/second", override_defaults=False)
+@limiter.limit("5/second", override_defaults=False)
 def login():  # авторизация пользователя
     if request.method == 'POST':
         username = request.form['username']
@@ -84,7 +84,7 @@ def login():  # авторизация пользователя
 
 
 @app.route('/logout')
-@limiter.limit("1/second", override_defaults=False)
+@limiter.limit("3/second", override_defaults=False)
 def logout():  # выход из аккаунта и конец сессии
     session.clear()
     logout_user()
@@ -94,7 +94,7 @@ def logout():  # выход из аккаунта и конец сессии
 
 
 @app.route('/account', methods=['GET', 'POST'])
-@limiter.limit("10/second", override_defaults=False)
+@limiter.limit("5/second", override_defaults=False)
 @login_required
 def account():  # настройки аккаунта
     form = AccountForm()
@@ -122,7 +122,7 @@ def account():  # настройки аккаунта
 # Главная страница панели администрирования
 @login_required
 @app.route("/dashboard")
-@limiter.limit("1/second", override_defaults=False)
+@limiter.limit("10/second", override_defaults=False)
 def dashboard():
     try:
         user = User.query.filter_by(id=current_user.id).first()
@@ -139,7 +139,7 @@ def dashboard():
 # Страница редактирования новостей
 @login_required
 @app.route("/edit_news/<int:id>", methods=["GET", "POST"])
-@limiter.limit("1/second", override_defaults=False)
+@limiter.limit("10/second", override_defaults=False)
 def edit_news(id):
     try:
         user = User.query.filter_by(id=current_user.id).first()
@@ -165,7 +165,7 @@ def edit_news(id):
 # Страница удаления новостей
 @login_required
 @app.route("/delete_news/<int:id>")
-@limiter.limit("1/second", override_defaults=False)
+@limiter.limit("3/second", override_defaults=False)
 def delete_news(id):
     try:
         user = User.query.filter_by(id=current_user.id).first()
@@ -186,7 +186,7 @@ def delete_news(id):
 
 
 @app.route('/neural')
-@limiter.limit("1/second", override_defaults=False)
+@limiter.limit("3/second", override_defaults=False)
 def neural():
     news_list = News.query.filter_by(category="neural").all()
     username = usernames()
@@ -195,7 +195,7 @@ def neural():
 
 
 @app.route('/technique')
-@limiter.limit("1/second", override_defaults=False)
+@limiter.limit("3/second", override_defaults=False)
 def technique():
     news_list = News.query.filter_by(category="technique").all()
     username = usernames()
@@ -204,7 +204,7 @@ def technique():
 
 
 @app.route('/games')
-@limiter.limit("1/second", override_defaults=False)
+@limiter.limit("3/second", override_defaults=False)
 def games():
     news_list = News.query.filter_by(category="games").all()
     username = usernames()
@@ -213,7 +213,7 @@ def games():
 
 
 @app.route('/add_news', methods=['GET', 'POST'])
-@limiter.limit("1/second", override_defaults=False)
+@limiter.limit("10/second", override_defaults=False)
 @login_required
 def add_news():
     try:
@@ -248,9 +248,8 @@ def add_news():
     return redirect("/del_news")
 
 
-
 @app.route('/del_news')
-@limiter.limit("1/second", override_defaults=False)
+@limiter.limit("10/second", override_defaults=False)
 def del_news():
     try:
         user = User.query.filter_by(id=current_user.id).first()
@@ -267,7 +266,7 @@ def del_news():
 
 
 @app.route("/editor")
-@limiter.limit("1/second", override_defaults=False)
+@limiter.limit("10/second", override_defaults=False)
 def editor():
     try:
         user = User.query.filter_by(id=current_user.id).first()
@@ -283,9 +282,8 @@ def editor():
         abort(404)
 
 
-
 @app.route('/read_news/<int:id>')
-@limiter.limit("1/second", override_defaults=False)
+@limiter.limit("3/second", override_defaults=False)
 def read_news(id):
     username = usernames()
     news_list = News.query.filter_by().all()
@@ -317,6 +315,7 @@ def choose_news():
 
 
 @app.route('/like/<int:news_id>')
+@limiter.limit("2/second", override_defaults=False)
 @login_required
 def like(news_id):
     news = News.query.get(news_id)
@@ -334,6 +333,7 @@ def like(news_id):
 
 
 @app.route('/unlike/<int:news_id>')
+@limiter.limit("2/second", override_defaults=False)
 @login_required
 def unlike(news_id):
     news = News.query.get_or_404(news_id)
@@ -349,6 +349,7 @@ def unlike(news_id):
 
 
 @app.route('/add-comment/<int:id>', methods=['POST'])
+@limiter.limit("3/second", override_defaults=False)
 def add_comment(id):
     content = request.form['content']
     user = current_user.username
@@ -357,7 +358,9 @@ def add_comment(id):
     db.session.commit()
     return redirect(url_for('index'))
 
+
 @app.route('/del_coment/<int:id>', methods=['POST'])
+@limiter.limit("10/second", override_defaults=False)
 def del_comment(id):
     try:
         user = User.query.filter_by(id=current_user.id).first()
