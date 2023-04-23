@@ -1,4 +1,7 @@
 from imports import UserMixin, datetime, Flask, Limiter, get_remote_address, SQLAlchemy, LoginManager
+from imports import requests, BeautifulSoup, json
+from flask import current_app
+
 
 app = Flask(__name__)
 limiter = Limiter(
@@ -50,3 +53,4 @@ class Comment(db.Model):
     content = db.Column(db.Text, nullable=False)
     news_id = db.Column(db.Integer, db.ForeignKey('news.id'), nullable=False)
     commentator = db.Column(db.String(100), nullable=False)
+

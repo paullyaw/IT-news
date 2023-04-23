@@ -1,5 +1,12 @@
+import asyncio
+
 from imports import *
 from data import *
+import threading
+
+game_words = ["игра", "игры"]
+neural_words = ["нейросеть", "нейросети", "нейронный", "нейронная"]
+technique_words = ["смартфон", "планшет", "компьютер", "ноутбук"]
 
 
 class AccountForm(FlaskForm):  # форма для настроек аккаунта
@@ -9,6 +16,71 @@ class AccountForm(FlaskForm):  # форма для настроек аккаун
                              validators=[EqualTo('confirm_password', message='Passwords must match')])
     confirm_password = PasswordField('Confirm Password')
     submit = SubmitField('Save Changes')
+
+
+def id_news():
+    url = 'https://admin.kod.ru/tag/news/'
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, 'html.parser')
+    scripts = soup.find_all('div', class_="post-card__content")
+    hrefs = [script.find('a')['href'] for script in scripts]
+    news_id = []
+    for i in hrefs:
+        if i.replace("/", "").isdigit() and hrefs[hrefs.index(i) + 1].replace("/", "").isdigit():
+            news_id.append(i.replace("/", ""))
+            news_id.append(hrefs[hrefs.index(i) + 1].replace("/", ""))
+            break
+    return news_id
+
+
+def parse_news():
+    id = id_news()
+    for i in id:
+        url = f'https://kod.ru/{i}'
+        response = requests.get(url)
+        soup = BeautifulSoup(response.content, 'html.parser')
+        script = soup.find('script', {'id': 'schema-org'})
+        data = json.loads(script.contents[0])
+        title = data["headline"]
+        subtitle = data["description"]
+        content = soup.find("body")
+        content = content.find("body")
+        content = content.get_text()
+        photo = data["image"]["url"]
+        link = data["url"]
+        category = ""
+        for i in game_words:
+            if i in title.lower() or i in subtitle.lower() or i in content.lower():
+                category = "games"
+        for i in neural_words:
+            if i in title.lower() or i in subtitle.lower() or i in content.lower():
+                category = "neural"
+        for i in technique_words:
+            if i in title.lower() or i in subtitle.lower() or i in content.lower():
+                category = "technique"
+        if category != "":
+            with app.app_context():
+                news = News(title=title, subtitle="", content=content, photo=photo, category=category)
+                db.session.add(news)
+                db.session.commit()
+
+
+def start_parser():
+    schedule.every().day.at("19:44").do(parse_news)
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
+
+
+def run_parser_in_thread():
+    t = threading.Thread(target=start_parser)
+    t.start()
+
+
+@app.before_first_request
+def start_parser_in_background():
+    asyncio.set_event_loop(asyncio.new_event_loop())
+    asyncio.get_event_loop().run_in_executor(None, run_parser_in_thread)
 
 
 with app.app_context():  # создание базы банных
