@@ -66,7 +66,7 @@ def parse_news():
 
 
 def start_parser():
-    schedule.every().day.at("19:44").do(parse_news)
+    schedule.every().day.at("20:06").do(parse_news)
     while True:
         schedule.run_pending()
         time.sleep(1)
@@ -381,7 +381,7 @@ def read_news(id):
 
 
 @app.route('/choose_news')
-@limiter.limit("1/second", override_defaults=False)
+@limiter.limit("10/second", override_defaults=False)
 def choose_news():
     pass
 
