@@ -1,3 +1,6 @@
+.scroll {
+  scroll-behavior: smooth;
+}
 @font-face {
     font-family: "MullerExtraBold";
     src: url("../fonts/MullerExtraBold/MullerExtraBold.eot");

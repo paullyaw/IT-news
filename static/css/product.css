@@ -1,3 +1,6 @@
+.scroll {
+  scroll-behavior: smooth;
+}
 .container {
   max-width: 960px;
 }

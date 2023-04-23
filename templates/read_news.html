@@ -89,6 +89,22 @@
     {{ news.content }}
   </div>
 </footer>
+    <h1>{{ news.title }}</h1>
+  <p>Published on {{ news.date }}</p>
+  <div class="share-buttons">
+    <a class="twitter-share-button" href="https://twitter.com/intent/tweet?url={{ request.url }}&text={{ news.title }}" target="_blank">
+      Share on Twitter
+    </a>
+    <a class="facebook-share-button" href="https://www.facebook.com/sharer/sharer.php?u={{ request.url }}" target="_blank">
+      Share on Facebook
+    </a>
+    <a class="vk-share-button" href="https://vk.com/share.php?url={{ request.url }}&title={{ news.title }}" target="_blank">
+      Share on VKontakte
+    </a>
+    <a class="telegram-share-button" href="https://t.me/share/url?url={{ request.url }}&text={{ news.title }}" target="_blank">
+      Share on Telegram
+    </a>
+  </div>
 
 {% if current_user.is_authenticated %}
         {% if current_user.has_liked(news) %}
