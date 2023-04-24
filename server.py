@@ -1,19 +1,16 @@
+import asyncio
+
 from imports import *
 from data import *
+import threading
 
-game_words = ["игра", "игры", "steam", "sega", "valve", "игр"]
-neural_words = ["нейросеть", "нейросети", "нейронный",
-                "нейронная", "искуственный интеллект", "openai", "gpt",
-                "чат-бот", "генератор", "генерац", "искуственного интеллекта"]
-technique_words = ["смартфон", "планшет", "компьютер", "ноутбук",
-                   "гарнитура", "windows", "apple",
-                   "iphone", "samsung", "ios", "чип",
-                   "android", "huawei", "intel", "it-оборудован"]
+game_words = ["игра", "игры"]
+neural_words = ["нейросеть", "нейросети", "нейронный", "нейронная"]
+technique_words = ["смартфон", "планшет", "компьютер", "ноутбук"]
 
 
 class AccountForm(FlaskForm):  # форма для настроек аккаунта
-    username = StringField('Username', validators=[DataRequired(),
-                                                   Length(min=2, max=20)])
+    username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password',
                              validators=[EqualTo('confirm_password', message='Passwords must match')])
@@ -63,13 +60,13 @@ def parse_news():
                 category = "technique"
         if category != "":
             with app.app_context():
-                news = News(title=title, subtitle="", content=content, photo=photo, category=category, link=link)
+                news = News(title=title, subtitle="", content=content, photo=photo, category=category)
                 db.session.add(news)
                 db.session.commit()
 
 
 def start_parser():
-    schedule.every().day.at("17:00").do(parse_news)
+    schedule.every().day.at("19:44").do(parse_news)
     while True:
         schedule.run_pending()
         time.sleep(1)
@@ -188,10 +185,10 @@ def account():  # настройки аккаунта
     elif request.method == 'GET':  # получение данных о пользователе
         username = request.cookies.get('username')
         user = User.query.filter_by(id=current_user.id).first()
-        form.username.data = user.username
+        form.username.data = username
         form.email.data = user.email
         form.password.data = user.password
-    return render_template('account.html', form=form, username=username, user=user)
+    return render_template('account.html', form=form, username=username)
 
 
 # Главная страница панели администрирования
@@ -374,23 +371,19 @@ def read_news(id):
                 back = news_list[back].id
             except IndexError:
                 back = i.id
+
     lenght = len(news_list)
     news = News.query.get_or_404(id)
-    locale.setlocale(locale.LC_ALL, 'ru_RU.utf-8')
-    date = news.date.strftime("%d %B %Y")
-    neural_id = []
-    games_id = []
-    technique_id = []
-    for i in News.query.filter_by(category="neural").all():
-        neural_id.append(i.id)
-    for i in News.query.filter_by(category="games").all():
-        games_id.append(i.id)
-    for i in News.query.filter_by(category="technique").all():
-        technique_id.append(i.id)
-    return render_template("read_news.html", news=news, username=username, lenght=lenght,
-                           all_news=news_list, next=next,
-                           back=back, date=date, neural=neural_id,
-                           games=games_id, technique=technique_id)
+    comm = Comment.query.filter_by(news_id=id)
+
+    return render_template("read_news.html", news=news, username=username, lenght=lenght, all_news=news_list, next=next,
+                           back=back, comm=comm)
+
+
+@app.route('/choose_news')
+@limiter.limit("1/second", override_defaults=False)
+def choose_news():
+    pass
 
 
 @app.route('/like/<int:news_id>')
@@ -425,6 +418,33 @@ def unlike(news_id):
         flash('You have not liked this news.', 'danger')
     session['previous_page'] = request.referrer
     return redirect(session['previous_page'])
+
+
+@app.route('/add-comment/<int:id>', methods=['POST'])
+@limiter.limit("3/second", override_defaults=False)
+def add_comment(id):
+    content = request.form['content']
+    user = current_user.username
+    comment = Comment(content=content, news_id=id, commentator=user)
+    db.session.add(comment)
+    db.session.commit()
+    return redirect(url_for('index'))
+
+
+@app.route('/del_coment/<int:id>', methods=['POST'])
+@limiter.limit("10/second", override_defaults=False)
+def del_comment(id):
+    try:
+        user = User.query.filter_by(id=current_user.id).first()
+        username = usernames()
+        if user.role == "admin":
+            comm = Comment.get_or_404(id)
+            db.session.delete(comm)
+            db.session.commit()
+        else:
+            abort(404)
+    except AttributeError:
+        abort(404)
 
 
 def main():
