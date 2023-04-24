@@ -4,7 +4,7 @@ app = Flask(__name__)
 limiter = Limiter(
     get_remote_address,
     app=app,
-    default_limits=["1000 per day", "100 per hour"],
+    default_limits=["200 per day", "50 per hour"],
     storage_uri="memory://"
 )
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'

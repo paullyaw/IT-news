@@ -142,9 +142,12 @@
   <br>
   <span style="color: white; font-family: MullerRegular, sans-serif;">Поставить лайк</span>
 </a>
-
     {% endif %}
   {% endif %}
+  {% if current_user.is_authenticated == False%}
+        <span style="display: inline-block; font-family: MullerRegular, sans-serif;">{{ news.num_likes() }} &#10084;</span>
+        {% endif %}
+
 </div>
   {% if news.id - 1 != lenght%}
   <a class="navbar-brand text-dark" href="/read_news/{{ next }}">Вперед</a>
