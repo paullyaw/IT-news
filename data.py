@@ -1,7 +1,4 @@
 from imports import UserMixin, datetime, Flask, Limiter, get_remote_address, SQLAlchemy, LoginManager
-from imports import requests, BeautifulSoup, json
-from flask import current_app
-
 
 app = Flask(__name__)
 limiter = Limiter(
@@ -37,20 +34,14 @@ class Like(db.Model):
 class News(db.Model):  # информация для базы данных новостей
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
-    subtitle = db.Column(db.String(100), nullable=False)
+    subtitle = db.Column(db.String(100), nullable=True)
     content = db.Column(db.Text, nullable=False)
     photo = db.Column(db.String, nullable=False, default="cat.jpeg")
     category = db.Column(db.String(20), nullable=False)
     date = db.Column(db.DateTime, nullable=False, default=datetime.today())
     views = db.Column(db.Integer, default=0)
+    link = db.Column(db.String(100), nullable=True)
 
     def num_likes(self):
         return Like.query.filter_by(news_id=self.id).count()
-
-
-class Comment(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    content = db.Column(db.Text, nullable=False)
-    news_id = db.Column(db.Integer, db.ForeignKey('news.id'), nullable=False)
-    commentator = db.Column(db.String(100), nullable=False)
 

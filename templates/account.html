@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Новости</title>
+    <title>Аккаунт</title>
     <link href="/static/css/fonts.css" rel="stylesheet">
     <link href="/static/css/stylename.css" rel="stylesheet">
    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -27,13 +27,6 @@
 <!-- Begin page content -->
 <main role="main" class="container">
     {% block content %}
-	{% with messages = get_flashed_messages() %}
-   {% if messages %}
-      {% for message in messages %}
-         {{ message }}
-      {% endfor %}
-   {% endif %}
-{% endwith %}
 	<body>
 	<style>
 		h1	{
@@ -47,25 +40,27 @@
 			letter-spacing: 1px;
 		}
 	</style>
-	<h1>Аккаунт</h1>
-	<form method="POST" action="{{ url_for('account') }}">
-		{{ form.hidden_tag() }}
-		<p>
-			<label for="username">Имя пользователя:</label>
-			{{ form.username }}
-		</p>
-		<p>
-			<label for="email">Email:</label>
-			{{ form.email }}
-		</p>
-		<p>
-			<label for="password">Пароль:</label>
-			{{ form.password }}
-		</p>
-		<p>
-			<input type="submit" value="Изменить">
-		</p>
-	</form>
+	<div class="container my-5">
+    <h1 class="text-center mb-5">Настройки аккаунта</h1>
+    <form method="POST" action="{{ url_for('account') }}">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            <label for="username" class="form-label">Имя пользователя:</label>
+            {{ form.username(class="form-control", id="username", required=True) }}
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email:</label>
+            {{ form.email(class="form-control", id="email", required=True) }}
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Пароль:</label>
+            {{ form.password(class="form-control", id="password", required=True) }}
+        </div>
+        <div class="mb-3">
+            <input type="submit" class="btn btn-primary" value="Изменить">
+        </div>
+    </form>
+</div>
 </body>
 
 	{% endblock %}
