@@ -103,6 +103,7 @@
     <div style="text-align: left; margin: auto;
  display: flex; justify-content: center; align-items: center; font-family: MullerMedium, sans-serif;
       font-size: 20px;">  <p>Поделиться новостью:</p> </div>
+
     <style>
 .share-buttons {
   display: flex;
@@ -120,6 +121,7 @@
       <img src="https://telegram.org/img/t_logo.png" alt="Telegram" width="50" height="50">
     </a>
   </div>
+   <div><span style="display: flex; font-family: MullerRegular, sans-serif; text-align: center; justify-content: center; align-items: center;">{{ news.num_likes() }} &#10084;</span></div>
 
 
 {% if request.headers.get('referer') != "http://127.0.0.1:5000/neural" and request.headers.get('referer') != "http://127.0.0.1:5000/games"
@@ -144,9 +146,6 @@
 </a>
     {% endif %}
   {% endif %}
-  {% if current_user.is_authenticated == False%}
-        <span style="display: inline-block; font-family: MullerRegular, sans-serif;">{{ news.num_likes() }} &#10084;</span>
-        {% endif %}
 
 </div>
   {% if news.id - 1 != lenght%}
@@ -155,7 +154,7 @@
 </nav>
 {% endif %}
 
-<div style="height: 20px;"></div>
+<div style="height: 50px;"></div>
 </main>
     {% endblock %}
 </main>
