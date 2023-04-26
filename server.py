@@ -1,6 +1,8 @@
 from imports import *
 from data import *
 
+
+# ключевые слова, определяющие категории новостей из парсера
 game_words = ["игра", "игры", "steam", "sega", "valve", "игр"]
 neural_words = ["нейросеть", "нейросети", "нейронный",
                 "нейронная", "искуственный интеллект", "openai", "gpt",
@@ -21,7 +23,7 @@ class AccountForm(FlaskForm):  # форма для настроек аккаун
     submit = SubmitField('Save Changes')
 
 
-def id_news():
+def id_news():  # узнаем id последних новостей
     url = 'https://admin.kod.ru/tag/news/'
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
@@ -36,7 +38,7 @@ def id_news():
     return news_id
 
 
-def parse_news():
+def parse_news():  # парсинг новостей
     id = id_news()
     for i in id:
         url = f'https://kod.ru/{i}'
@@ -68,20 +70,20 @@ def parse_news():
                 db.session.commit()
 
 
-def start_parser():
-    schedule.every().day.at("17:00").do(parse_news)
+def start_parser():  # расписание парсинга новостей
+    schedule.every().day.at("21:00").do(parse_news)
     while True:
         schedule.run_pending()
         time.sleep(1)
 
 
-def run_parser_in_thread():
+def run_parser_in_thread():  # парсер не мешает работать серверу и работает в потоке
     t = threading.Thread(target=start_parser)
     t.start()
 
 
 @app.before_first_request
-def start_parser_in_background():
+def start_parser_in_background():  # асинхронная функция, в которой идет обращение к run_parser_in_thread
     asyncio.set_event_loop(asyncio.new_event_loop())
     asyncio.get_event_loop().run_in_executor(None, run_parser_in_thread)
 
@@ -90,7 +92,7 @@ with app.app_context():  # создание базы банных
     db.create_all()
 
 
-def usernames():
+def usernames():  # получаем текущее имя пользователя
     username = session.get('username')
     return username
 
@@ -102,9 +104,9 @@ def load_user(user_id):  # создание сессии при авториза
 
 @app.route('/')
 @limiter.limit("5/second", override_defaults=False)
-def index():
+def index(): # главная страница
     news_list = News.query.filter_by().all()
-    likes_list = Like.query.filter_by().all()  # главная страница
+    likes_list = Like.query.filter_by().all()
     news_list = news_list[::-1]
     username = usernames()
     return render_template('base.html', all_news=news_list, like=likes_list, current_user=current_user,
@@ -260,7 +262,7 @@ def delete_news(id):
     return redirect("/del_news")
 
 
-@app.route('/neural')
+@app.route('/neural')  # страница с новостями про нейросети
 @limiter.limit("3/second", override_defaults=False)
 def neural():
     news_list = News.query.filter_by(category="neural").all()
@@ -271,6 +273,7 @@ def neural():
 
 @app.route('/technique')
 @limiter.limit("3/second", override_defaults=False)
+# страница с новостями про технику
 def technique():
     news_list = News.query.filter_by(category="technique").all()
     username = usernames()
@@ -280,6 +283,7 @@ def technique():
 
 @app.route('/games')
 @limiter.limit("3/second", override_defaults=False)
+# страница с новостями про игры
 def games():
     news_list = News.query.filter_by(category="games").all()
     username = usernames()
@@ -290,6 +294,7 @@ def games():
 @app.route('/add_news', methods=['GET', 'POST'])
 @limiter.limit("10/second", override_defaults=False)
 @login_required
+# страница с формой добавления новостей
 def add_news():
     try:
         user = User.query.filter_by(id=current_user.id).first()
@@ -324,6 +329,7 @@ def add_news():
 
 
 @app.route('/del_news')
+# панель удаления новостей
 @limiter.limit("10/second", override_defaults=False)
 def del_news():
     try:
@@ -341,6 +347,7 @@ def del_news():
 
 
 @app.route("/editor")
+# панель редактирования новостей
 @limiter.limit("10/second", override_defaults=False)
 def editor():
     try:
@@ -358,6 +365,7 @@ def editor():
 
 
 @app.route('/read_news/<int:id>')
+# чтение новостей
 @limiter.limit("3/second", override_defaults=False)
 def read_news(id):
     username = usernames()
@@ -396,7 +404,7 @@ def read_news(id):
 @app.route('/like/<int:news_id>')
 @limiter.limit("2/second", override_defaults=False)
 @login_required
-def like(news_id):
+def like(news_id):  # поставить лайк новости
     news = News.query.get(news_id)
     if news is None:
         abort(404, message=f"News with id {news_id} not found")
@@ -414,7 +422,7 @@ def like(news_id):
 @app.route('/unlike/<int:news_id>')
 @limiter.limit("2/second", override_defaults=False)
 @login_required
-def unlike(news_id):
+def unlike(news_id):  # убрать лайк с новости
     news = News.query.get_or_404(news_id)
     if current_user.has_liked(news):
         like = Like.query.filter_by(user_id=current_user.id, news_id=news.id).first()
@@ -427,7 +435,7 @@ def unlike(news_id):
     return redirect(session['previous_page'])
 
 
-def main():
+def main():  # запуск сервера
     port = 5000
     app.run(debug=True, port=port)
 
