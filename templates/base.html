@@ -3,6 +3,8 @@
 <head>
     <meta charset="utf-8">
     <title>IT-журнал</title>
+     <link rel="icon" href="/static/img/лого-вкладка-сайта.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/static/img/лого-вкладка-сайта.ico" type="image/x-icon">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet"
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
@@ -18,23 +20,12 @@
 <header>
     <script src="/static/js/navbar_position.js"></script>
     <nav class="navbar navbar-light">
-       <a class="navbar-brand" href="/">
+       <a class="navbar-brand" href="/main">
+           <div style="display: flex; justify-content: center; align-items: center;">
 			<span class="special">IT-ЖУРНАЛ</span>
+            </div>
 		</a>
-      <a class="navbar-brand text-primary" href="{{ url_for('neural') }}">Нейросети</a>
-     <a class="navbar-brand text-info" href="{{ url_for('technique') }}">Техника</a>
-        <a class="navbar-brand text-secondary" href="{{ url_for('games') }}">Игры</a>
-    <nav class="ms-auto">
-        {% if current_user.is_authenticated %}
-        <a class="navbar-brand" href="{{ url_for('account') }}">{{ username }}</a>
-        <a class="navbar-brand" href="{{ url_for('logout') }}">Выход</a>
-        {% else %}
-        <a class="navbar-brand" href="{{ url_for('register') }}">Регистрация</a>
-        <a class="navbar-brand" href="{{ url_for('login') }}">Вход</a>
-        {% endif %}
-      </nav>
     </nav>
-
 </header>
 <!-- Begin page content -->
 <main role="main" class="container">

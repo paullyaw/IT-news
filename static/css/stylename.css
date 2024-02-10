@@ -4,10 +4,9 @@
 .navbar {
   position: fixed;
   width: 90%;
-  margin: 0 auto;
+  left: 50%;
+  transform: translateX(-50%);
   top: 0;
-  left: 0;
-  right: 0;
   height: 90px;
   background-color: #fff;
   z-index: 2;
@@ -25,7 +24,7 @@ a::first-letter {
 			letter-spacing: 1px;
 		}
 .special {
-			font-family: MullerExtraBold, sans-serif;;
+			font-family: MullerExtraBold, sans-serif;
 			font-size: 40px;
 		}
 .form-floating {

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT-журнал</title>
+    <link rel="icon" href="/static/img/лого-вкладка-сайта.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/static/img/лого-вкладка-сайта.ico" type="image/x-icon">
+    <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
+</head>
+<body style="display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: white;">
+    <div style="width: 80%; max-width: 800px;">
+        <dotlottie-player
+            src="https://lottie.host/92023d7e-4010-4c60-9ebd-5eaa2dacadb5/niTQEjQA5r.json"
+            background="transparent"
+            speed="1"
+            style="width: 100%; height: auto;"
+            direction="1"
+            playMode="normal"
+            loop
+            autoplay
+        ></dotlottie-player>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Получаем элемент с анимацией
+            var animationContainer = document.getElementById('animationContainer');
+
+            // Запускаем анимацию (если она загружена)
+            if (animationContainer) {
+                var animationPlayer = animationContainer.querySelector('dotlottie-player');
+                if (animationPlayer) {
+                    animationPlayer.play();
+                }
+            }
+        });
+    </script>
+
+    <script>
+        setTimeout(function() {
+            window.location.href = '/main';
+        }, 5000);
+    </script>
+
+</body>
+</html>

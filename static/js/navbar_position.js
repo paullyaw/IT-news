@@ -8,6 +8,3 @@ window.addEventListener('scroll', function() {
     navbar.classList.remove('fixed');
   }
 });
-
-const title = "Привет!";
-let i = 0;

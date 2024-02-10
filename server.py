@@ -2,17 +2,6 @@ from imports import *
 from data import *
 
 
-# ключевые слова, определяющие категории новостей из парсера
-game_words = ["игра", "игры", "steam", "sega", "valve", "игр"]
-neural_words = ["нейросеть", "нейросети", "нейронный",
-                "нейронная", "искуственный интеллект", "openai", "gpt",
-                "чат-бот", "генератор", "генерац", "искуственного интеллекта"]
-technique_words = ["смартфон", "планшет", "компьютер", "ноутбук",
-                   "гарнитура", "windows", "apple",
-                   "iphone", "samsung", "ios", "чип",
-                   "android", "huawei", "intel", "it-оборудован"]
-
-
 class AccountForm(FlaskForm):  # форма для настроек аккаунта
     username = StringField('Username', validators=[DataRequired(),
                                                    Length(min=2, max=20)])
@@ -21,71 +10,6 @@ class AccountForm(FlaskForm):  # форма для настроек аккаун
                              validators=[EqualTo('confirm_password', message='Passwords must match')])
     confirm_password = PasswordField('Confirm Password')
     submit = SubmitField('Save Changes')
-
-
-def id_news():  # узнаем id последних новостей
-    url = 'https://admin.kod.ru/tag/news/'
-    response = requests.get(url)
-    soup = BeautifulSoup(response.content, 'html.parser')
-    scripts = soup.find_all('div', class_="post-card__content")
-    hrefs = [script.find('a')['href'] for script in scripts]
-    news_id = []
-    for i in hrefs:
-        if i.replace("/", "").isdigit() and hrefs[hrefs.index(i) + 1].replace("/", "").isdigit():
-            news_id.append(i.replace("/", ""))
-            news_id.append(hrefs[hrefs.index(i) + 1].replace("/", ""))
-            break
-    return news_id
-
-
-def parse_news():  # парсинг новостей
-    id = id_news()
-    for i in id:
-        url = f'https://kod.ru/{i}'
-        response = requests.get(url)
-        soup = BeautifulSoup(response.content, 'html.parser')
-        script = soup.find('script', {'id': 'schema-org'})
-        data = json.loads(script.contents[0])
-        title = data["headline"]
-        subtitle = data["description"]
-        content = soup.find("body")
-        content = content.find("body")
-        content = content.get_text()
-        photo = data["image"]["url"]
-        link = data["url"]
-        category = ""
-        for i in game_words:
-            if i in title.lower() or i in subtitle.lower() or i in content.lower():
-                category = "games"
-        for i in neural_words:
-            if i in title.lower() or i in subtitle.lower() or i in content.lower():
-                category = "neural"
-        for i in technique_words:
-            if i in title.lower() or i in subtitle.lower() or i in content.lower():
-                category = "technique"
-        if category != "":
-            with app.app_context():
-                news = News(title=title, subtitle="", content=content, photo=photo, category=category, link=link)
-                db.session.add(news)
-                db.session.commit()
-
-
-def start_parser():  # расписание парсинга новостей
-    schedule.every().day.at("21:00").do(parse_news)
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
-
-
-def run_parser_in_thread():  # парсер не мешает работать серверу и работает в потоке
-    t = threading.Thread(target=start_parser)
-    t.start()
-
-
-@app.before_first_request
-def start_parser_in_background():  # асинхронная функция, в которой идет обращение к run_parser_in_thread
-    asyncio.set_event_loop(asyncio.new_event_loop())
-    asyncio.get_event_loop().run_in_executor(None, run_parser_in_thread)
 
 
 with app.app_context():  # создание базы банных
@@ -102,9 +26,15 @@ def load_user(user_id):  # создание сессии при авториза
     return User.query.get(int(user_id))
 
 
-@app.route('/')
+@app.route("/")
 @limiter.limit("5/second", override_defaults=False)
-def index(): # главная страница
+def animation():  # анимация в начале
+    return render_template("animation.html")
+
+
+@app.route('/main')
+@limiter.limit("5/second", override_defaults=False)
+def index():  # главная страница
     news_list = News.query.filter_by().all()
     likes_list = Like.query.filter_by().all()
     news_list = news_list[::-1]
@@ -134,7 +64,6 @@ def register():  # регистрация пользователя
         new_user = User(username=username, email=email, password=hashed_password, role="reader")
         db.session.add(new_user)
         db.session.commit()
-        return redirect("/login")
     return render_template('register.html')
 
 
