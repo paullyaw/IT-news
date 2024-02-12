@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+<main role="main" class="container">
+  {% block content %}
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+<head>
+    <title>Редактирование новостей</title>
+    <!-- Подключаем Bootstrap -->
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>Управление редакторами</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Имя</th>
+                    <th>Роль</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.role }}</td>
+                    <td>
+                       <form method="post" action="{{ url_for('delete_user', user_id=user.id) }}">
+    <button type="submit" class="btn btn-primary mx-auto" style="position: center; bottom: 0;">Удалить пользователя</button>
+</form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <!-- Подключаем JavaScript и jQuery для взаимодействия с веб-страницей -->
+    <script src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+</body>
+    {% endblock %}
+</main>

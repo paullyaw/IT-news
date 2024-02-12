@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+<!-- Begin page content -->
+<main role="main" class="container">
+    <title>Техника</title>
+    {% block content %}
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+    <link href="/static/css/product.css" rel="stylesheet">
+    <main>
+  <div class="position-relative overflow-hidden text-center mx-auto">
+    <div class="col-md-5 p-lg-5 mx-auto my-5">
+      <style>
+          .display-4{
+          font-family: MullerExtraBold, sans-serif;
+		  font-size: 95px;
+			letter-spacing: 1px;
+			}
+		  .lead {
+		  font-family: MullerMedium, sans-serif;
+			font-size: 25px;
+		  }
+      </style>
+      <h1 class="display-4 fw-normal text-info d-flex align-items-center justify-content-center"></h1>
+      <p class="lead fw-normal text-info"></p>
+    </div>
+</div>
+
+<script>
+    const headline = document.querySelector(".display-4");
+    const subline = document.querySelector(".lead");
+
+    const headlineText = "Игры";
+    const sublineText = "Виртуальный мир головоломок и развлечений.";
+
+    let headlineIndex = 0;
+    let sublineIndex = 0;
+
+    function typeHeadline() {
+        if (headlineIndex < headlineText.length) {
+            headline.textContent += headlineText.charAt(headlineIndex);
+            headlineIndex++;
+            setTimeout(typeHeadline, 50);
+        }
+    }
+
+    function typeSubline() {
+        if (sublineIndex < sublineText.length) {
+            subline.textContent += sublineText.charAt(sublineIndex);
+            sublineIndex++;
+            setTimeout(typeSubline, 30);
+        }
+    }
+
+    typeHeadline();
+    setTimeout(typeSubline, 1300);
+</script>
+<div class="container">
+    <div class="row">
+        {% for news in all_news %}
+            {% set col_size = 'col-md-6' %}
+            {% if loop.index % 3 == 0 %}
+                {% set col_size = 'col-md-12' %}
+            {% endif %}
+            <div class="{{ col_size }}">
+                <div class="position-relative overflow-hidden text-center">
+                    <div class="p-lg-5 mx-auto my-5">
+                        <div class="news-container" onclick="window.location.assign('/{{ news.link }}')" style="background-image: url('/static/img/{{ news.photo }}'), url('{{ news.photo }}');">
+                            <div class="news-text-container">
+                                <h1 class="display-4 fw-normal d-flex align-items-center justify-content-center" style="font-size: 20px;">{{ news.title }}</h1>
+                                <p class="lead fw-normal"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% if loop.index % 3 == 0 %}
+                </div><div class="row">
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+</main>
+    {% endblock %}
+</main>
+</body>

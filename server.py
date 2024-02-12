@@ -36,11 +36,17 @@ def animation():  # анимация в начале
 @limiter.limit("5/second", override_defaults=False)
 def index():  # главная страница
     news_list = News.query.filter_by().all()
-    likes_list = Like.query.filter_by().all()
     news_list = news_list[::-1]
-    username = usernames()
-    return render_template('base.html', all_news=news_list, like=likes_list, current_user=current_user,
-                           username=username)
+    games = Games.query.filter_by().all()
+    return render_template('base.html', all_news=news_list, games=games)
+
+
+@app.route('/news')
+@limiter.limit("5/second", override_defaults=False)
+def main_news():
+    news_list = News.query.filter_by().all()
+    news_list = news_list[::-1]
+    return render_template("neural.html", all_news=news_list)
 
 
 @app.route('/home')
@@ -61,7 +67,7 @@ def register():  # регистрация пользователя
         email = request.form['email']
         password = request.form['password']
         hashed_password = generate_password_hash(password, method='sha256')
-        new_user = User(username=username, email=email, password=hashed_password, role="reader")
+        new_user = User(username=username, email=email, password=hashed_password, role="writer")
         db.session.add(new_user)
         db.session.commit()
     return render_template('register.html')
@@ -81,7 +87,7 @@ def login():  # авторизация пользователя
             session.permanent = True
             app.permanent_session_lifetime = timedelta(minutes=90)
             login_user(user)
-            resp = make_response(redirect("/home"))
+            resp = make_response(redirect("/dashboard"))
             resp.set_cookie('username', username)
             return resp
         else:
@@ -125,6 +131,15 @@ def account():  # настройки аккаунта
     return render_template('account.html', form=form, username=username, user=user)
 
 
+@login_required
+@app.route("/writers")
+@limiter.limit("10/second", override_defaults=False)
+def writers():
+    users = User.query.all()
+    print(users)
+    return render_template("writers.html", users=users)
+
+
 # Главная страница панели администрирования
 @login_required
 @app.route("/dashboard")
@@ -135,11 +150,15 @@ def dashboard():
         username = usernames()
         if user.role == "admin":
             news = News.query.all()
+            users = User.query.all()
             return render_template("dashboard.html", news=news, username=username)
+        elif user.role == "writer":
+            news = News.query.all()
+            return render_template("dbw.html", news=news, username=username)
         else:
-            abort(404)
+            return render_template("login.html")
     except AttributeError:
-        abort(404)
+        return render_template("login.html")
 
 
 # Страница редактирования новостей
@@ -191,23 +210,42 @@ def delete_news(id):
     return redirect("/del_news")
 
 
-@app.route('/neural')  # страница с новостями про нейросети
+@app.route('/it')  # страница с новостями про нейросети
 @limiter.limit("3/second", override_defaults=False)
-def neural():
+def it():
     news_list = News.query.filter_by(category="neural").all()
     username = usernames()
     news_list = news_list[::-1]
-    return render_template('neural.html', all_news=news_list, username=username)
+    return render_template('it.html', all_news=news_list, username=username)
+
+
+@app.route('/game')
+@limiter.limit("3/second", override_defaults=False)
+# страница с новостями про технику
+def game():
+    games = Games.query.filter_by().all()
+    username = usernames()
+    games = games[::-1]
+    return render_template('game.html', all_news=games, username=username)
+
+
+@app.route('/memory_game')
+def memory_game():
+    return render_template("index.html")
 
 
 @app.route('/technique')
 @limiter.limit("3/second", override_defaults=False)
-# страница с новостями про технику
 def technique():
     news_list = News.query.filter_by(category="technique").all()
     username = usernames()
     news_list = news_list[::-1]
     return render_template('technique.html', all_news=news_list, username=username)
+
+
+@app.route("/flappy_bird")
+def flappy_bird():
+    return render_template("bird.html")
 
 
 @app.route('/games')
@@ -217,7 +255,8 @@ def games():
     news_list = News.query.filter_by(category="games").all()
     username = usernames()
     news_list = news_list[::-1]
-    return render_template('games.html', all_news=news_list, username=username)
+    games = Games.query.filter_by().all()
+    return render_template('games.html', all_news=news_list, username=username, games=games)
 
 
 @app.route('/add_news', methods=['GET', 'POST'])
@@ -330,38 +369,28 @@ def read_news(id):
                            games=games_id, technique=technique_id)
 
 
-@app.route('/like/<int:news_id>')
-@limiter.limit("2/second", override_defaults=False)
+@app.route("/delete_user/<int:user_id>", methods=['POST'])
 @login_required
-def like(news_id):  # поставить лайк новости
-    news = News.query.get(news_id)
-    if news is None:
-        abort(404, message=f"News with id {news_id} not found")
-    if current_user.has_liked(news):
-        flash('You have already liked this news', 'warning')
-    else:
-        like = Like(user_id=current_user.id, news_id=news.id)
-        db.session.add(like)
-        db.session.commit()
-        flash('News liked!', 'success')
-    session['previous_page'] = request.referrer
-    return redirect(session['previous_page'])
+def delete_user(user_id):
+    try:
+        if current_user.role == "admin":
+            user_to_delete = User.query.get(user_id)
+            db.session.delete(user_to_delete)
+            db.session.commit()
+            return redirect(url_for('dashboard'))
+        else:
+            return render_template("base.html")
+    except AttributeError:
+        return render_template("base.html")
 
 
-@app.route('/unlike/<int:news_id>')
-@limiter.limit("2/second", override_defaults=False)
-@login_required
-def unlike(news_id):  # убрать лайк с новости
-    news = News.query.get_or_404(news_id)
-    if current_user.has_liked(news):
-        like = Like.query.filter_by(user_id=current_user.id, news_id=news.id).first()
-        db.session.delete(like)
-        db.session.commit()
-        flash('Like removed!', 'success')
-    else:
-        flash('You have not liked this news.', 'danger')
-    session['previous_page'] = request.referrer
-    return redirect(session['previous_page'])
+@app.route("/daily_news")
+def daily_news():
+    today = str(datetime.today().strftime('%Y-%m-%d 00:00:00')) + ".000000"
+    print(today)
+    all_news = News.query.filter_by(date=today).all()
+    all_news = all_news[::-1]
+    return render_template("daily.html", all_news=all_news)
 
 
 def main():  # запуск сервера

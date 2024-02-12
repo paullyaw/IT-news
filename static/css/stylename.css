@@ -1,16 +1,31 @@
 .scroll {
   scroll-behavior: smooth;
 }
+
 .navbar {
   position: fixed;
+  background-color: #fff;
   width: 90%;
   left: 50%;
   transform: translateX(-50%);
   top: 0;
-  height: 90px;
-  background-color: #fff;
+  height: 120px;
+  padding: 10px; /* Добавьте необходимый отступ вокруг изображения */
+  display: flex;
+  justify-content: center; /* Выравнивание по центру */
+  align-items: center;
   z-index: 2;
 }
+.navbar a {
+  margin: 0 15px; /* Добавьте отступы, если нужно расстояние между элементами */
+}
+.navbar-logo img {
+  max-width: 350px;
+  height: auto;
+  display: block;
+  margin-right: 100px; /* Оставьте это свойство, если вам необходимо дополнительное расстояние между изображением и текстом */
+}
+
 .navbar.fixed {
   position: fixed;
   margin: 0 auto;
@@ -18,10 +33,40 @@
 a::first-letter {
   text-transform: uppercase;
 }
-.navbar-brand {
+.navbar-brand.text-primary,
+.navbar-brand.text-info {
+  font-family: PTSansBold, sans-serif;
+  font-size: 23px;
+  letter-spacing: 1px;
+}
+
+.navbar-brand.text-primary {
 			font-family: MullerMedium, sans-serif;
-			font-size: 20px;
+			font-size: 23px;
 			letter-spacing: 1px;
+			margin-right: auto;
+        margin-left: auto;
+		}
+.navbar-brand.text-info {
+			font-family: MullerMedium, sans-serif;
+			font-size: 23px;
+			letter-spacing: 1px;
+			margin-right: auto;
+        margin-left: auto;
+		}
+.navbar-brand.text-secondary {
+			font-family: MullerMedium, sans-serif;
+			font-size: 23px;
+			letter-spacing: 1px;
+			margin-right: auto;
+			margin-left: auto;
+		}
+.navbar-brand.text-dark {
+			font-family: MullerMedium, sans-serif;
+			font-size: 23px;
+			letter-spacing: 1px;
+			margin-right: auto;
+			margin-left: auto;
 		}
 .special {
 			font-family: MullerExtraBold, sans-serif;
@@ -46,18 +91,38 @@ a::first-letter {
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
 }
 
+.news-container {
+    height: 300px; /* Устанавливаем желаемую высоту */
+    width: 250px;
+    max-height: 350px; /* Максимальная высота при наведении */
+    background-size: cover;
+    background-position: center;
+    position: relative; /* Добавляем это свойство для корректного отображения .news-text-container */
+}
+
 .news-text-container {
+    font-family: PTSansBold, sans-serif;
     position: absolute;
     bottom: 0;
     width: 100%;
+    max-height: 80px; /* Максимальная высота при наведении */
     background-color: rgba(0, 0, 0, 0.7);
     padding: 10px;
     color: #fff;
     transition: all 0.3s ease-in-out;
-    opacity: 1;
+    opacity: 0.9; /* Уменьшено значение, чтобы сохранить часть прозрачности */
 }
 
 .news-container:hover .news-text-container {
     opacity: 1;
 }
+.card {
+    height: 100%;
+    transition: box-shadow 0.3s;
+}
+
+.card:hover {
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+}
+
 

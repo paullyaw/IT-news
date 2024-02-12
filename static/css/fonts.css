@@ -34,3 +34,17 @@
     font-style: normal;
     font-weight: 400;
 }
+@font-face {
+    font-family: "PTSansRegular";
+    src: url("../fonts/PTSansRegular/PTSans-Regular.ttf") format("truetype");
+    url("../fonts/PTSansRegular/pt-sans_regular.woff") format("woff"),
+    font-style: normal;
+    font-weight: 800;
+}
+@font-face {
+    font-family: "PTSansBold";
+    src: url("../fonts/PTSansBold/PTSans-Bold.ttf") format("truetype");
+    url("../fonts/PTSansBold/pt-sans_bold.woff") format("woff"),
+    font-style: normal;
+    font-weight: 800;
+}

@@ -7,13 +7,20 @@
   <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
   <link href="/static/css/dash.css" rel="stylesheet">
-
+<style>
+            /* Добавим стиль для увеличения прокрутки страницы вниз */
+            .container {
+                margin-bottom: 100px; /* Увеличьте этот отступ вниз по мере необходимости */
+            }
+        </style>
 </head>
 <body>
   <div class="container">
     <div class="jumbotron">
       <h1>Добро пожаловать в административную панель новостного сайта!</h1>
       <p>Здесь вы можете добавлять и редактировать новости, управлять категориями и настраивать сайт.</p>
+    <p>Администратор: {{ username }}</p>
+      <a href="/logout">Выход</a>
     </div>
     <div class="row">
       <div class="col-md-4">
@@ -31,9 +38,19 @@
         <p>В этом разделе вы можете удалить новости.</p>
         <p><a class="btn btn-default" href="/del_news">Перейти &raquo;</a></p>
       </div>
+      <div class="col-md-4">
+        <h2>Регистрация автора</h2>
+        <p>Добавление новых редакторов.</p>
+        <p><a class="btn btn-default" href="/register">Перейти &raquo;</a></p>
+      </div>
+      <div class="col-md-4">
+        <h2>Управление редакторами</h2>
+        <p>Удаление редактов.</p>
+        <p><a class="btn btn-default" href="#">Перейти &raquo;</a></p>
+      </div>
     </div>
   </div>
-  
+
   <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </body>
