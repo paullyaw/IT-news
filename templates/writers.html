@@ -5,6 +5,12 @@
 <head>
     <title>Редактирование новостей</title>
     <!-- Подключаем Bootstrap -->
+    <style>
+            /* Добавим стиль для увеличения прокрутки страницы вниз */
+            .container {
+                margin-bottom: 80px; /* Увеличьте этот отступ вниз по мере необходимости */
+            }
+        </style>
     <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
 </head>
 <body>
@@ -33,7 +39,6 @@
             </tbody>
         </table>
     </div>
-    <!-- Подключаем JavaScript и jQuery для взаимодействия с веб-страницей -->
     <script src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
 </body>

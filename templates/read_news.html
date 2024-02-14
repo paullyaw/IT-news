@@ -52,8 +52,10 @@
             {% endif %}
             <span class="category_date">{{ date }}</span>
         </div>
-
-    <p class="news-content">{{ news.content|safe }}</p>
+    <p class="news-content">
+        {% if news.subtitle != "" %}
+    <p class="news-content_1" style="font-size: 25px;"><strong>{{ news.subtitle|safe }}</strong></p>
+    {% endif %} {{ news.content|safe }}</p>
     <div>
         <p class="all_n"><strong>Все новости:</strong></p>
     </div>
@@ -63,7 +65,6 @@
                     <img src="/static/img/{{ news.photo }}" class="card-img-top" alt="Изображение новости">
                     <div class="card-body">
                         <h5 class="card-title">{{ news.title }}</h5>
-                        <p class="card-text">{{ news.description }}</p>
                     </div>
                 </div>
             {% endfor %}

@@ -36,11 +36,15 @@
         <label for="content" class="form-label">Содержание</label>
         <textarea class="form-control" id="content" name="content" rows="5" required> {{ news.content }}</textarea>
       </div>
+        <div class="mb-3">
+           <label for="photo">Приложите фотографию</label>
+           <input type="file" class="form-control-file" id="photo" name="photo">
+       </div>
       <div class="mb-3">
         <label for="category" class="form-label">Измените категорию</label>
         <select class="form-select" id="category" name="category" required>
           <option value="" selected disabled hidden>Выберите категорию</option>
-          <option value="neural">Нейросети</option>
+          <option value="neural">Айти</option>
           <option value="technique">Техника</option>
           <option value="games">Игры</option>
         </select>

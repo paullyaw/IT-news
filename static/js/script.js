@@ -1,8 +1,6 @@
 let move_speed = 3, grativy = 0.5;
 let bird = document.querySelector('.bird');
 let img = document.getElementById('bird-1');
-let sound_point = new Audio('sounds effect/point.mp3');
-let sound_die = new Audio('sounds effect/die.mp3');
 
 // getting bird element properties
 let bird_props = bird.getBoundingClientRect();
@@ -19,22 +17,36 @@ img.style.display = 'none';
 message.classList.add('messageStyle');
 
 document.addEventListener('keydown', (e) => {
-    
-    if(e.key == 'Enter' && game_state != 'Play'){
-        document.querySelectorAll('.pipe_sprite').forEach((e) => {
-            e.remove();
-        });
-        img.style.display = 'block';
-        bird.style.top = '40vh';
-        game_state = 'Play';
-        message.innerHTML = '';
-        score_title.innerHTML = 'Счет : ';
-        score_val.innerHTML = '0';
-        message.classList.remove('messageStyle');
-        play();
+    if ((e.key == 'Enter' || e.key == ' ' || e.key == 'ArrowUp') && game_state != 'Play') {
+        startGame();
     }
 });
 
+document.addEventListener('mousedown', () => {
+    if (game_state != 'Play') {
+        startGame();
+    }
+});
+
+document.addEventListener('touchstart', () => {
+    if (game_state != 'Play') {
+        startGame();
+    }
+});
+
+function startGame() {
+    document.querySelectorAll('.pipe_sprite').forEach((e) => {
+        e.remove();
+    });
+    img.style.display = 'block';
+    bird.style.top = '40vh';
+    game_state = 'Play';
+    message.innerHTML = '';
+    score_title.innerHTML = 'Счет : ';
+    score_val.innerHTML = '0';
+    message.classList.remove('messageStyle');
+    play();
+}
 function play(){
     function move(){
         if(game_state != 'Play') return;
@@ -49,15 +61,13 @@ function play(){
             }else{
                 if(bird_props.left < pipe_sprite_props.left + pipe_sprite_props.width && bird_props.left + bird_props.width > pipe_sprite_props.left && bird_props.top < pipe_sprite_props.top + pipe_sprite_props.height && bird_props.top + bird_props.height > pipe_sprite_props.top){
                     game_state = 'End';
-                    message.innerHTML = 'Игра окончена'.fontcolor('red') + '<br>Нажмите Enter для начала игры';
+                    message.innerHTML = 'Игра окончена'.fontcolor('red') + '<br>Нажмите на экран для начала игры';
                     message.classList.add('messageStyle');
                     img.style.display = 'none';
-                    sound_die.play();
                     return;
                 }else{
                     if(pipe_sprite_props.right < bird_props.left && pipe_sprite_props.right + move_speed >= bird_props.left && element.increase_score == '1'){
                         score_val.innerHTML =+ score_val.innerHTML + 1;
-                        sound_point.play();
                     }
                     element.style.left = pipe_sprite_props.left - move_speed + 'px';
                 }
@@ -71,18 +81,41 @@ function play(){
     function apply_gravity(){
         if(game_state != 'Play') return;
         bird_dy = bird_dy + grativy;
+
         document.addEventListener('keydown', (e) => {
             if(e.key == 'ArrowUp' || e.key == ' '){
                 img.src = '/static/img/Bird-2.png';
                 bird_dy = -7.6;
             }
         });
-
         document.addEventListener('keyup', (e) => {
             if(e.key == 'ArrowUp' || e.key == ' '){
                 img.src = '/static/img/Bird.png';
             }
         });
+
+        document.addEventListener('touchstart', (e) => {
+        img.src = '/static/img/Bird-2.png';
+        bird_dy = -7.6;
+    });
+
+    document.addEventListener('touchend', (e) => {
+        img.src = '/static/img/Bird.png';
+    });
+    document.addEventListener('mousedown', () => {
+    if (game_state === 'Play') {
+        img.src = '/static/img/Bird-2.png';
+        bird_dy = -7.6;
+    }
+});
+
+document.addEventListener('mouseup', () => {
+    if (game_state === 'Play') {
+        img.src = '/static/img/Bird.png';
+    }
+});
+
+
 
         if(bird_props.top <= 0 || bird_props.bottom >= background.bottom){
             game_state = 'End';

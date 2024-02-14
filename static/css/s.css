@@ -48,7 +48,7 @@
 body {
             padding-top: 50px;
             font-family: 'PT Sans', sans-serif;
-            font-size: 20px;
+            font-size: 21px;
 
         }
 
@@ -203,4 +203,26 @@ a::first-letter {
     font-family: PT Sans, sans-serif; /* Замените 'ВАШ_НОВЫЙ_ШРИФТ' на название вашего нового шрифта */
     padding-left: 20px; /* Левый отступ */
     padding-right: 20px; /* Правый отступ */
+}
+blockquote {
+  border-left: 2px solid #333; /* Линия слева от цитаты */
+  margin: 10px 0; /* Отступы вокруг цитаты */
+  padding-left: 10px; /* Отступ слева от текста цитаты */
+}
+
+footer {
+  margin-top: 5px; /* Отступ от основного текста цитаты */
+  font-style: italic; /* Курсив для источника цитаты */
+}
+.pic_news {
+  display: block;
+            width: 70%;
+            max-height: 100vh;
+            height: 70%;
+            object-fit: cover;
+            margin: auto
+}
+.card-title{
+font-family: PT Sans, sans-serif;
+font-weight: 700;
 }

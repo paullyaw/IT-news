@@ -27,13 +27,13 @@ def load_user(user_id):  # создание сессии при авториза
 
 
 @app.route("/")
-@limiter.limit("5/second", override_defaults=False)
+@limiter.limit("15/second", override_defaults=False)
 def animation():  # анимация в начале
     return render_template("animation.html")
 
 
 @app.route('/main')
-@limiter.limit("5/second", override_defaults=False)
+@limiter.limit("15/second", override_defaults=False)
 def index():  # главная страница
     news_list = News.query.filter_by().all()
     news_list = news_list[::-1]
@@ -42,7 +42,7 @@ def index():  # главная страница
 
 
 @app.route('/news')
-@limiter.limit("5/second", override_defaults=False)
+@limiter.limit("15/second", override_defaults=False)
 def main_news():
     news_list = News.query.filter_by().all()
     news_list = news_list[::-1]
@@ -50,7 +50,7 @@ def main_news():
 
 
 @app.route('/home')
-@limiter.limit("3/second", override_defaults=False)
+@limiter.limit("13/second", override_defaults=False)
 def home():  # домашняя страница пользователя
     news_list = News.query.filter_by().all()
     news_list = news_list[::-1]
@@ -59,22 +59,32 @@ def home():  # домашняя страница пользователя
 
 
 @app.route('/register', methods=['GET', 'POST'])
-@limiter.limit("5/second", override_defaults=False)
-def register():  # регистрация пользователя
-    if request.method == 'POST':
-        username = request.form['username']
-        username = username.lower()
-        email = request.form['email']
-        password = request.form['password']
-        hashed_password = generate_password_hash(password, method='sha256')
-        new_user = User(username=username, email=email, password=hashed_password, role="writer")
-        db.session.add(new_user)
-        db.session.commit()
-    return render_template('register.html')
+@limiter.limit("15/second", override_defaults=False)
+def register():
+    if current_user.is_authenticated and current_user.role == "admin":
+        try:
+            if request.method == 'POST':
+                username = request.form['username']
+                username = username.lower()
+                email = request.form['email']
+                password = request.form['password']
+                role = request.form['role']
+                hashed_password = generate_password_hash(password, method='sha256')
+                new_user = User(username=username, email=email, password=hashed_password, role=role)
+                db.session.add(new_user)
+                db.session.commit()
+                return render_template('dashboard.html')
+            else:
+                return render_template('register.html')
+        except AttributeError:
+            abort(404)
+
+    else:
+        abort(403)
 
 
 @app.route('/login', methods=['GET', 'POST'])
-@limiter.limit("5/second", override_defaults=False)
+@limiter.limit("15/second", override_defaults=False)
 def login():  # авторизация пользователя
     if request.method == 'POST':
         username = request.form['username']
@@ -96,7 +106,7 @@ def login():  # авторизация пользователя
 
 
 @app.route('/logout')
-@limiter.limit("3/second", override_defaults=False)
+@limiter.limit("13/second", override_defaults=False)
 def logout():  # выход из аккаунта и конец сессии
     session.clear()
     logout_user()
@@ -106,7 +116,7 @@ def logout():  # выход из аккаунта и конец сессии
 
 
 @app.route('/account', methods=['GET', 'POST'])
-@limiter.limit("5/second", override_defaults=False)
+@limiter.limit("15/second", override_defaults=False)
 @login_required
 def account():  # настройки аккаунта
     form = AccountForm()
@@ -133,7 +143,7 @@ def account():  # настройки аккаунта
 
 @login_required
 @app.route("/writers")
-@limiter.limit("10/second", override_defaults=False)
+@limiter.limit("20/second", override_defaults=False)
 def writers():
     users = User.query.all()
     print(users)
@@ -143,7 +153,7 @@ def writers():
 # Главная страница панели администрирования
 @login_required
 @app.route("/dashboard")
-@limiter.limit("10/second", override_defaults=False)
+@limiter.limit("20/second", override_defaults=False)
 def dashboard():
     try:
         user = User.query.filter_by(id=current_user.id).first()
@@ -164,7 +174,7 @@ def dashboard():
 # Страница редактирования новостей
 @login_required
 @app.route("/edit_news/<int:id>", methods=["GET", "POST"])
-@limiter.limit("10/second", override_defaults=False)
+@limiter.limit("20/second", override_defaults=False)
 def edit_news(id):
     try:
         user = User.query.filter_by(id=current_user.id).first()
@@ -177,8 +187,14 @@ def edit_news(id):
                 news.subtitle = request.form['subtitle']
                 news.content = request.form['content']
                 news.category = request.form['category']
+                if 'photo' in request.files:
+                    photo = request.files['photo']
+                    if photo.filename != '':
+                        filename = secure_filename(photo.filename)
+                        photo.save(os.path.join('static', 'img', filename))
+                        news.photo = filename
                 db.session.commit()
-                return redirect("/editor")
+                return redirect(url_for('read_news', id=news.id))
             else:
                 return render_template("edit_news.html", news=news, username=username)
         else:
@@ -190,7 +206,7 @@ def edit_news(id):
 # Страница удаления новостей
 @login_required
 @app.route("/delete_news/<int:id>")
-@limiter.limit("3/second", override_defaults=False)
+@limiter.limit("13/second", override_defaults=False)
 def delete_news(id):
     try:
         user = User.query.filter_by(id=current_user.id).first()
@@ -211,22 +227,12 @@ def delete_news(id):
 
 
 @app.route('/it')  # страница с новостями про нейросети
-@limiter.limit("3/second", override_defaults=False)
+@limiter.limit("13/second", override_defaults=False)
 def it():
     news_list = News.query.filter_by(category="neural").all()
     username = usernames()
     news_list = news_list[::-1]
     return render_template('it.html', all_news=news_list, username=username)
-
-
-@app.route('/game')
-@limiter.limit("3/second", override_defaults=False)
-# страница с новостями про технику
-def game():
-    games = Games.query.filter_by().all()
-    username = usernames()
-    games = games[::-1]
-    return render_template('game.html', all_news=games, username=username)
 
 
 @app.route('/memory_game')
@@ -235,7 +241,7 @@ def memory_game():
 
 
 @app.route('/technique')
-@limiter.limit("3/second", override_defaults=False)
+@limiter.limit("13/second", override_defaults=False)
 def technique():
     news_list = News.query.filter_by(category="technique").all()
     username = usernames()
@@ -249,7 +255,7 @@ def flappy_bird():
 
 
 @app.route('/games')
-@limiter.limit("3/second", override_defaults=False)
+@limiter.limit("13/second", override_defaults=False)
 # страница с новостями про игры
 def games():
     news_list = News.query.filter_by(category="games").all()
@@ -260,7 +266,7 @@ def games():
 
 
 @app.route('/add_news', methods=['GET', 'POST'])
-@limiter.limit("10/second", override_defaults=False)
+@limiter.limit("20/second", override_defaults=False)
 @login_required
 # страница с формой добавления новостей
 def add_news():
@@ -316,7 +322,7 @@ def del_news():
 
 @app.route("/editor")
 # панель редактирования новостей
-@limiter.limit("10/second", override_defaults=False)
+@limiter.limit("20/second", override_defaults=False)
 def editor():
     try:
         user = User.query.filter_by(id=current_user.id).first()
@@ -334,7 +340,7 @@ def editor():
 
 @app.route('/read_news/<int:id>')
 # чтение новостей
-@limiter.limit("3/second", override_defaults=False)
+@limiter.limit("13/second", override_defaults=False)
 def read_news(id):
     username = usernames()
     news_list = News.query.filter_by().all()
@@ -391,6 +397,33 @@ def daily_news():
     all_news = News.query.filter_by(date=today).all()
     all_news = all_news[::-1]
     return render_template("daily.html", all_news=all_news)
+
+
+@app.before_request
+def update_session_timestamp():
+    session.permanent = True
+    app.permanent_session_lifetime = timedelta(minutes=30)
+    session.modified = True
+    if 'last_activity' in session:
+        session['last_activity'] = datetime.now()
+
+
+SESSION_TIMEOUT = 30 * 60
+
+
+@app.before_request
+def check_session_timeout():
+    if 'last_activity' in session:
+        last_activity_time = session['last_activity']
+        current_time = datetime.now()
+        elapsed_time = current_time - last_activity_time
+        if elapsed_time.total_seconds() > SESSION_TIMEOUT:
+            # If the user has been inactive for more than 30 minutes, log them out
+            session.clear()
+            logout_user()
+            resp = make_response(redirect("/"))
+            resp.set_cookie('username', '', expires=0)
+            return resp
 
 
 def main():  # запуск сервера
