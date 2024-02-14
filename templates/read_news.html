@@ -1,137 +1,95 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="/static/img/лого-вкладка-сайта.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/static/img/лого-вкладка-сайта.ico" type="image/x-icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+        crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/product/">
+    <link href="/static/css/fonts.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Muller:wght@400;700&display=swap" rel="stylesheet">
+    <link href="/static/css/s.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap">
+    <title>{{ news.title }}</title>
+</head>
 
-{% block content %}
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://fonts.cdnfonts.com/css/pt-sans-2" rel="stylesheet">
-    <style>
-        .read {
-            position: relative;
-            text-align: center;
-            overflow: hidden;
-            width: 100%;
-        }
+<body>
+<header>
+        <script src="/static/js/navbar_position.js"></script>
+        <nav class="navbar navbar-light navbar-shadow">
+            <a class="navbar-logo" href="/main">
+                <img src="/static/img/iconca.png" alt="Логотип">
+            </a>
 
-        .read::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100%;
-            background: url('/static/img/{{ news.photo }}'), url('{{ news.photo }}') no-repeat center;
-            background-size: cover;
-            z-index: -1;
-            filter: blur(10px);
-        }
-
-        .text-container {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background-color: rgba(255, 255, 255, 0.8);
-            padding: 20px;
-        }
-
-        .read img {
-            display: block;
-            margin: auto;
-            position: ;
-            z-index: 1;
-            width: 0px;
-            height: 500px;
-        }
-
-        .news-title {
-            font-family: PTSansBold, sans-serif;
-            font-size: 40px;
-        }
-
-        .news-subtitle {
-            font-family: PTSansRegular, sans-serif;
-            font-size: 25px;
-        }
-
-        .date {
-            font-family: PTSansBold, sans-serif;
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            text-align: left;
-            margin: auto;
-            padding: 5px;
-            display: flex;
-            font-size: 18px;
-        }
-
-        .content {
-            text-align: left;
-            max-width: 850px;
-            margin: auto;
-            padding: 24px;
-            justify-content: center;
-            align-items: center;
-            font-family: PTSansRegular, sans-serif;
-            font-size: 22px;
-        }
-
-        .source-link {
-            text-align: left;
-            margin: auto;
-            padding: 5px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: MullerRegular, sans-serif;
-            font-size: 20px;
-        }
-
-        .share-buttons {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 5px;
-        }
-
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .navbar-brand {
-            text-align: center;
-        }
-    </style>
-
-    <header class="read">
-        <img src="/static/img/{{ news.photo }}" alt="Your Image" onerror="this.onerror=null; this.src='{{ news.photo }}';">
-        <div class="text-container">
-            <h1 class="news-title display-4 fw-normal d-flex align-items-center">{{ news.title }}</h1>
-            <p class="news-subtitle lead fw-normal">{{ news.subtitle }}</p>
-            <div class="date">{{ date }}</div>
-        </div>
+            <a class="navbar-brand text-primary" href="{{ url_for('daily_news') }}">Новости дня</a>
+            <a class="navbar-brand text-info" href="{{ url_for('it') }}">Айти</a>
+            <a class="navbar-brand text-secondary" href="{{ url_for('technique') }}">Техника</a>
+            <a class="navbar-brand text-dark" href="{{ url_for('games') }}">Игры</a>
+        </nav>
     </header>
-
-    <footer>
-        <div class="content">
-            {{ news.content|safe }}
-        </div>
-        <div class="source-link">
-            {% if news.link != None %}
-                <a class="navbar-brand ml-auto text-primary" href="{{ news.link }}">Источник: {{ news.link }}</a>
+<div class="news-container">
+        <!-- Фотография вверху по центру с масштабированием и тенью -->
+        <div class="image-container">
+            <div class="overlay"></div>
+            <img src="/static/img/{{ news.photo }}" alt="{{ news.title }}" class="centered-image">
+            <h1 class="image-title">{{ news.title }}</h1>
+            {% if news.id in neural %}
+                <h4 class="category">[ Айти ]</h4>
             {% endif %}
+            {% if news.id in games %}
+                <h4 class="category">[ Игры ]</h4>
+            {% endif %}
+            {% if news.id in technique %}
+                <span class="category">[ Техника ]</span>
+            {% endif %}
+            <span class="category_date">{{ date }}</span>
         </div>
-    </footer>
 
-    <div class="share-buttons">
-        <a class="vk-share-button" href="https://vk.com/share.php?url={{ request.url }}&title={{ news.title }}" target="_blank">
-            <img src="https://vk.com/images/share_32.png" alt="VKontakte" width="50" height="50">
-        </a>
-        <a class="telegram-share-button" href="https://t.me/share/url?url={{ request.url }}&text={{ news.title }}" target="_blank">
-            <img src="https://telegram.org/img/t_logo.png" alt="Telegram" width="50" height="50">
-        </a>
+    <p class="news-content">{{ news.content|safe }}</p>
+    <div>
+        <p class="all_n"><strong>Все новости:</strong></p>
     </div>
-    <div style="height: 50px;"></div>
+   <div class="news-list">
+            {% for news in all_news[::-1] %}
+                <div class="news-item card" onclick="window.location.href='/read_news/{{ news.id }}';">
+                    <img src="/static/img/{{ news.photo }}" class="card-img-top" alt="Изображение новости">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ news.title }}</h5>
+                        <p class="card-text">{{ news.description }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
 
-{% endblock %}
+        <div class="bottom-arrows">
+            <div class="arrow arrow-left" onclick="scrollNews(1)">←</div>
+            <div class="arrow arrow-right" onclick="scrollNews(-1)">→</div>
+        </div>
+    </div>
+
+    <!-- Ваши скрипты и завершение HTML кода -->
+    <script>
+    let currentTranslate = 0;
+    const cardWidth = document.querySelector('.news-item').offsetWidth - 55; // Ширина блока с новостью
+
+    function scrollNews(direction) {
+        currentTranslate += direction * cardWidth;
+
+        const maxTranslate = (document.querySelectorAll('.news-item').length - 1) * cardWidth;
+
+        currentTranslate = Math.min(0, Math.max(-maxTranslate, currentTranslate));
+
+        document.querySelector('.news-list').style.transform = `translateX(${currentTranslate}px)`;
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,206 @@
+.news-container {
+            margin: 50px auto; /* Пример отступов для центрирования */
+            max-width: 1000px; /* Пример максимальной ширины контейнера */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Тень */
+            text-align: left;
+            position: relative;
+            padding: 50px;
+            overflow-x: hidden;
+        }
+.image-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6); /* Цвет и прозрачность затемнения */
+}
+
+.centered-image {
+            display: block;
+            width: 100%;
+            max-height: 40vh;
+            height: auto;
+            object-fit: cover;
+        }
+.image-title {
+   position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    padding: 30px;
+    font-size: 40px;
+    margin-bottom: 30px;
+    text-align: left; /* Выравнивание заголовка по центру */
+    width: 100%; /* Заголовок занимает всю ширину фотографии */
+    z-index: 1;
+}
+.image-title + .category {
+    margin-top: 20px; /* Вы можете установить нужное значение отступа в пикселях или других единицах измерения */
+}
+
+body {
+            padding-top: 50px;
+            font-family: 'PT Sans', sans-serif;
+            font-size: 20px;
+
+        }
+
+.image-title,
+.category,
+.category_date,
+.all_n {
+    font-family: 'PT Sans', sans-serif;
+    font-weight: 700;
+}
+
+
+.navbar-brand {
+            color: white;
+        }
+
+.navbar-brand:hover {
+            color: #007bff;
+        }
+.scroll {
+  scroll-behavior: smooth;
+}
+.navbar {
+    position: fixed;
+    z-index: 1000;
+    background-color: #fff;
+  width: 90%;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 0;
+  padding: 10px;
+}
+.navbar a {
+  margin: 0 15px; /* Добавьте отступы, если нужно расстояние между элементами */
+}
+.navbar-logo img {
+  max-width: 350px;
+  height: auto;
+  display: block;
+  margin-right: 100px; /* Оставьте это свойство, если вам необходимо дополнительное расстояние между изображением и текстом */
+}
+
+.navbar.fixed {
+  position: fixed;
+  margin: 0 auto;
+}
+a::first-letter {
+  text-transform: uppercase;
+}
+.navbar-brand.text-primary,
+.navbar-brand.text-info {
+  font-family: PTSansBold, sans-serif;
+  font-size: 23px;
+  letter-spacing: 1px;
+}
+
+.navbar-brand.text-primary {
+			font-family: MullerMedium, sans-serif;
+			font-size: 23px;
+			letter-spacing: 1px;
+			margin-right: auto;
+        margin-left: auto;
+		}
+.navbar-brand.text-info {
+			font-family: MullerMedium, sans-serif;
+			font-size: 23px;
+			letter-spacing: 1px;
+			margin-right: auto;
+        margin-left: auto;
+		}
+.navbar-brand.text-secondary {
+			font-family: MullerMedium, sans-serif;
+			font-size: 23px;
+			letter-spacing: 1px;
+			margin-right: auto;
+			margin-left: auto;
+		}
+.navbar-brand.text-dark {
+			font-family: MullerMedium, sans-serif;
+			font-size: 23px;
+			letter-spacing: 1px;
+			margin-right: auto;
+			margin-left: auto;
+		}
+
+.category {
+    position: absolute;
+    top: 70%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    padding: 30px;
+    font-size: 18px;
+    text-align: left; /* Выравнивание заголовка по центру */
+    width: 100%; /* Заголовок занимает всю ширину фотографии */
+    z-index: 1;
+}
+.category_date {
+    position: absolute;
+    top: 90%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    padding: 30px;
+    font-size: 18px;
+    text-align: left; /* Выравнивание заголовка по центру */
+    width: 100%; /* Заголовок занимает всю ширину фотографии */
+    z-index: 1;
+}
+.news-list {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+
+        .news-item {
+            flex: 0 0 auto;
+            width: 300px; /* Ширина блока с новостью, при необходимости можно изменить */
+            margin-right: 20px; /* Расстояние между новостями, при необходимости можно изменить */
+        }
+
+        .card {
+            cursor: pointer;
+        }
+.bottom-arrows {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .arrow {
+            font-size: 24px;
+            cursor: pointer;
+            color: black;
+            border: none;
+            padding: 10px;
+            border-radius: 50%;
+            transition: background-color 0.3s ease;
+        }
+
+        .arrow:hover {
+            background-color: rgba(0, 0, 0, 0);
+        }
+
+        .arrow-left {
+            margin-right: 20px;
+        }
+
+        .arrow-right {
+            margin-left: 20px;
+        }
+.news-content {
+    font-family: PT Sans, sans-serif; /* Замените 'ВАШ_НОВЫЙ_ШРИФТ' на название вашего нового шрифта */
+    padding-left: 20px; /* Левый отступ */
+    padding-right: 20px; /* Правый отступ */
+}
