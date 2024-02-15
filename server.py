@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+# Используйте Python 3.x
 from imports import *
 from data import *
 
