@@ -360,8 +360,7 @@ def read_news(id):
                 back = i.id
     lenght = len(news_list)
     news = News.query.get_or_404(id)
-    locale.setlocale(locale.LC_ALL, 'ru_RU.utf-8')
-    date = news.date.strftime("%d %B %Y")
+    date = format_date_russian(news.date)
     neural_id = []
     games_id = []
     technique_id = []
@@ -375,6 +374,26 @@ def read_news(id):
                            all_news=news_list, next=next,
                            back=back, date=date, neural=neural_id,
                            games=games_id, technique=technique_id)
+
+
+def format_date_russian(date):
+    months_ru = {
+        1: 'января', 2: 'февраля', 3: 'марта',
+        4: 'апреля', 5: 'мая', 6: 'июня',
+        7: 'июля', 8: 'августа', 9: 'сентября',
+        10: 'октября', 11: 'ноября', 12: 'декабря'
+    }
+
+    days_of_week_ru = {
+        0: 'понедельник', 1: 'вторник', 2: 'среда',
+        3: 'четверг', 4: 'пятница', 5: 'суббота', 6: 'воскресенье'
+    }
+
+    formatted_date = "{:%d} {} {:%Y}, {}".format(
+        date, months_ru[date.month], date, days_of_week_ru[date.weekday()]
+    )
+
+    return formatted_date
 
 
 @app.route("/delete_user/<int:user_id>", methods=['POST'])
