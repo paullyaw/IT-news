@@ -14,7 +14,6 @@ import requests
 import json
 import schedule
 import time
-from bs4 import BeautifulSoup
 import threading
 import asyncio
 import locale
