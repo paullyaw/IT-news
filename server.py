@@ -181,7 +181,7 @@ def edit_news(id):
     try:
         user = User.query.filter_by(id=current_user.id).first()
         username = usernames()
-        if user.role == "admin":
+        if user.role == "admin" or user.role == "writer":
             news = News.query.get_or_404(id)
             username = usernames()
             if request.method == "POST":
@@ -213,7 +213,7 @@ def delete_news(id):
     try:
         user = User.query.filter_by(id=current_user.id).first()
         username = usernames()
-        if user.role == "admin":
+        if user.role == "admin" or user.role == "writer":
             news = News.query.get_or_404(id)
             db.session.delete(news)
             db.session.commit()
@@ -275,7 +275,7 @@ def add_news():
     try:
         user = User.query.filter_by(id=current_user.id).first()
         username = usernames()
-        if user.role == "admin":
+        if user.role == "admin" or user.role == "writer":
             username = usernames()
             if request.method == 'POST':
                 title = request.form['title']
@@ -311,7 +311,7 @@ def del_news():
     try:
         user = User.query.filter_by(id=current_user.id).first()
         username = usernames()
-        if user.role == "admin":
+        if user.role == "admin" or user.role == "writer":
             news_list = News.query.filter_by().all()
             news_list = news_list[::-1]
             username = usernames()
@@ -329,7 +329,7 @@ def editor():
     try:
         user = User.query.filter_by(id=current_user.id).first()
         username = usernames()
-        if user.role == "admin":
+        if user.role == "admin" or user.role == "writer":
             news_list = News.query.filter_by().all()
             username = usernames()
             news_list = news_list[::-1]
